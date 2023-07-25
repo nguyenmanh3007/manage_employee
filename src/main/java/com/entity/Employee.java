@@ -39,12 +39,12 @@ public class Employee {
     private String timeCheckout;
     @Column(name="EmployeeStatus")
     private boolean employeeStatus;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name="Employee_Role",joinColumns = @JoinColumn(name="EmployeeId"),inverseJoinColumns = @JoinColumn(name="RoleId"))
     @EqualsAndHashCode.Exclude // <<<<<<<<<<
     @ToString.Exclude // <<<<<<<
     private Set<Roles> listRoles = new HashSet<>();
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "employee",cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.REMOVE)
     @EqualsAndHashCode.Exclude // <<<<<<<<<<
     @ToString.Exclude // <<<<<<<
     @JsonIgnore

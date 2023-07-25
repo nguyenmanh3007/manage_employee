@@ -1,7 +1,10 @@
 package com.repository;
 
-import com.dto.EmployeeWithConfirmDTO;
+import com.dto.EmCoDTO;
 import com.entity.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,4 +35,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     @Query(value = "SELECT new com.entity.Employee(em.Code, em.Username, em.Phone) FROM employee em INNER JOIN confirm cf ON em.employee_id = cf.employee_id WHERE cf.timeCheckIn BETWEEN :dateStart AND :dateEnd", nativeQuery = true)
     List<Employee> listEmployeeIOwithTime(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
+
+    @Query(value = "SELECT new com.dto.EmCoDTO(em.code,em.userName,em.phone) From Employee em where  em.userName like %?1%")
+    Page<EmCoDTO> findEmCoDTo(String username, Pageable pageable);
+
 }

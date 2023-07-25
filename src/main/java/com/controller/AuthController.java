@@ -3,15 +3,20 @@ package com.controller;
 import com.converter.ConfirmConverter;
 import com.entity.ERole;
 import com.entity.Employee;
+import com.entity.RefreshToken;
 import com.entity.Roles;
+import com.exception.TokenRefreshException;
 import com.jwt.JwtTokenProvider;
 import com.payload.request.LoginRequest;
 import com.payload.request.SignupRequest;
+import com.payload.request.TokenRefreshRequest;
 import com.payload.response.JwtResponse;
 import com.payload.response.MessageResponse;
+import com.payload.response.TokenRefreshResponse;
 import com.security.CustomUserDetails;
 import com.service.ConfirmService;
 import com.service.EmployeeService;
+import com.service.RefreshTokenService;
 import com.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -49,6 +55,8 @@ public class AuthController {
     private ConfirmConverter confirmConverter;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private RefreshTokenService refreshTokenService;
     @Autowired
     private PasswordEncoder encoder;
 
@@ -111,10 +119,25 @@ public class AuthController {
         System.out.print(customUserDetails);
         //sinh JWT tra ve Client
         String jwt = tokenProvider.generateToken(customUserDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(customUserDetails.getUserId());
         //Lay cac quyen cua user
         List<String> listRoles = customUserDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority()).collect(Collectors.toList());
-        return ResponseEntity.ok(new JwtResponse(jwt, customUserDetails.getCode(), customUserDetails.getUsername(), customUserDetails.getEmail(), customUserDetails.getPhone(), customUserDetails.getTimeCheckin(), customUserDetails.getTimeCheckout(), listRoles));
+        return ResponseEntity.ok(new JwtResponse(jwt,refreshToken.getToken(), customUserDetails.getCode(), customUserDetails.getUsername(), customUserDetails.getEmail(), customUserDetails.getPhone(), customUserDetails.getTimeCheckin(), customUserDetails.getTimeCheckout(), listRoles));
+    }
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getEmployee)
+                .map(employee -> {
+                    String token = tokenProvider.generateTokenFromUsername(employee.getUserName());
+                    System.out.println(token);
+                    return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+                })
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+                        "Refresh token is not in database!"));
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {

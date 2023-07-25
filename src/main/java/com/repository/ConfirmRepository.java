@@ -28,6 +28,8 @@ public interface ConfirmRepository extends JpaRepository<Confirm,Integer> {
 
     @Query(value = "SELECT employee.Code as code,employee.Username as userName, confirm.timeCheckIn as timeCheckIn, confirm.timeCheckOut as timeCheckOut,confirm.checkInLate as checkInLate,confirm.checkOutEarly as checkOutEarly,confirm.statusCheckIn as statusCheckIn, confirm.statusCheckOut as statusCheckOut FROM confirm,employee where confirm.employeeId=employee.EmployeeId AND (confirm.timeCheckIn BETWEEN :dateStart AND :dateEnd)",nativeQuery = true)
     List<EmWithDto> listTest(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
+//    @Query(value = "SELECT cf  FROM Confirm cf where cf.timeCheckIn BETWEEN :dateStart AND :dateEnd")
+//    List<EmWithDto> listTest(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
 
 
 

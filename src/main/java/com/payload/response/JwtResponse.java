@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class JwtResponse {
     private String token;
+    private String refreshToken;
     private int code;
     private String type = "Bearer";
     private String userName;
@@ -20,9 +21,10 @@ public class JwtResponse {
     private String timeCheckin;
     private String timeCheckout;
     private List<String> listRoles;
-    public JwtResponse(String token, String type, String userName, String email, String phone, List<String> listRoles) {
+    public JwtResponse(String token,String refreshToken, String type, String userName, String email, String phone, List<String> listRoles) {
         super();
         this.token = token;
+        this.refreshToken=refreshToken;
         this.type = type;
         this.userName = userName;
         this.email = email;
@@ -30,8 +32,9 @@ public class JwtResponse {
         this.listRoles = listRoles;
     }
 
-    public JwtResponse(String token, int code, String userName, String email, String phone, String timeCheckin, String timeCheckout, List<String> listRoles) {
+    public JwtResponse(String token,String refreshToken, int code, String userName, String email, String phone, String timeCheckin, String timeCheckout, List<String> listRoles) {
         this.token = token;
+        this.refreshToken=refreshToken;
         this.code = code;
         this.userName = userName;
         this.email = email;

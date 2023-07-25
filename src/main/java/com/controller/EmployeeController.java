@@ -2,10 +2,7 @@ package com.controller;
 
 import com.converter.ConfirmConverter;
 import com.dto.EmployeeWithConfirmDTO;
-import com.entity.Confirm;
-import com.entity.ERole;
-import com.entity.Employee;
-import com.entity.Roles;
+import com.entity.*;
 import com.jwt.JwtTokenProvider;
 import com.payload.request.CheckioRequest;
 import com.payload.request.LoginRequest;
@@ -15,6 +12,7 @@ import com.payload.response.MessageResponse;
 import com.security.CustomUserDetails;
 import com.service.ConfirmService;
 import com.service.EmployeeService;
+import com.service.RefreshTokenService;
 import com.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +52,8 @@ public class EmployeeController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
+    @Autowired
+    private RefreshTokenService refreshTokenService;
     @PostMapping("/signup")
     public ResponseEntity<?> registerEmployee(@RequestBody SignupRequest signupRequest) {
         if (employeeService.existsByUserName(signupRequest.getUserName())) {
@@ -113,10 +113,11 @@ public class EmployeeController {
         System.out.print(customUserDetails);
         //sinh JWT tra ve Client
         String jwt = tokenProvider.generateToken(customUserDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(customUserDetails.getUserId());
         //Lay cac quyen cua user
         List<String> listRoles=customUserDetails.getAuthorities().stream()
                 .map(item->item.getAuthority()).collect(Collectors.toList());
-        return ResponseEntity.ok(new JwtResponse(jwt,customUserDetails.getCode() ,customUserDetails.getUsername(), customUserDetails.getEmail(),customUserDetails.getPhone(),customUserDetails.getTimeCheckin(),customUserDetails.getTimeCheckout(), listRoles));
+        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken(), customUserDetails.getCode() ,customUserDetails.getUsername(), customUserDetails.getEmail(),customUserDetails.getPhone(),customUserDetails.getTimeCheckin(),customUserDetails.getTimeCheckout(), listRoles));
     }
     @PostMapping("/checkio")
     public ResponseEntity<?> checkIOEmployee(@RequestBody CheckioRequest checkioRequest) {

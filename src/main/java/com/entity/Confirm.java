@@ -32,7 +32,7 @@ public class Confirm {
     private String statusCheckIn;
     @Column(name = "statusCheckOut")
     private String statusCheckOut;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employeeId",nullable = false)
     private Employee employee;
 }

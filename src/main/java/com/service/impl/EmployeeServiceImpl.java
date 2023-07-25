@@ -1,18 +1,19 @@
 package com.service.impl;
 
 import com.converter.EmployeeConverter;
+import com.dto.EmCoDTO;
 import com.dto.EmployeeDTO;
-import com.dto.EmployeeWithConfirmDTO;
-import com.entity.Confirm;
 import com.entity.ERole;
 import com.entity.Employee;
 import com.entity.Roles;
 import com.repository.ConfirmRepository;
 import com.repository.EmployeeRepository;
-import com.repository.RoleRepository;
 import com.service.EmployeeService;
 import com.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -153,6 +154,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         int min = 1000;
         int max = 9999;
         return random.nextInt(max - min + 1) + min;
+    }
+
+    @Override
+    public Page<EmCoDTO> findEmCoDTo(String username, Pageable pageable) {
+        return employeeRepository.findEmCoDTo(username,pageable);
     }
 
 }

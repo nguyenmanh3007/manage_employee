@@ -18,7 +18,7 @@ public class JwtTokenProvider {
     private int JWT_EXPIRATION;
     //Tao jwt tu thong tin user(Dua vao thong tin customdetail de sinh ra chuoi jwt duy nhat)
     public String generateToken(CustomUserDetails customUserDetails) {
-        Date now = new Date();
+        Date now = new Date(new Date().getTime());
         Date dateExpired = new Date(now.getTime()+JWT_EXPIRATION);
         //Tao chuoi jwt tu username cua user
         return Jwts.builder().setSubject(customUserDetails.getUsername())
@@ -33,6 +33,11 @@ public class JwtTokenProvider {
                 ;
         //tra lai username
         return claims.getSubject();
+    }
+    public String generateTokenFromUsername(String username) {
+        return Jwts.builder().setSubject(username).setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + JWT_EXPIRATION)).signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .compact();
     }
     //validate thong tin cua chuoi jwt
     public boolean validateToken(String token) {

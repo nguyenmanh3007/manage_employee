@@ -2,6 +2,7 @@ package com.controller;
 
 
 import com.converter.ConfirmConverter;
+import com.dto.EmCoDTO;
 import com.dto.EmWithDto;
 import com.dto.EmployeeDTO;
 import com.dto.EmployeeWithConfirmDTO;
@@ -13,8 +14,8 @@ import com.payload.response.MessageResponse;
 import com.service.ConfirmService;
 import com.service.EmployeeService;
 import com.service.RoleService;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -101,11 +102,17 @@ public class AdminController {
 
     @GetMapping("/test")
     @Transactional
-    public ResponseEntity<?> update() {
-        List<EmWithDto> list= confirmService.listTest("05/07/2023","14/07/2023");
+    public ResponseEntity<?> update(@RequestParam(value = "pageRequest",required = false) int pageRequest,
+                                    @RequestParam(value = "limit",required = false) int limit) {
+        //List<EmWithDto> list= confirmService.listTest("05/07/2023","14/07/2023");
         //List<Confirm> list= confirmService.findAll();
         //list.forEach(x-> Hibernate.initialize(x.getEmployee()));
 
+        //return ResponseEntity.ok(list);
+        Pageable pageable= PageRequest.of(pageRequest-1,limit, Sort.by("code").descending().and(Sort.by("userName")));
+        Page<EmCoDTO> list=employeeService.findEmCoDTo("user",pageable);
+        //System.out.println(list.getTotalPages()+" "+ list.getNumber()+" "+list.getTotalElements());
+        //List<EmWithDto> list= confirmService.listTest("05/07/2023","13/07/2023");
         return ResponseEntity.ok(list);
 
         //Persit,merge
