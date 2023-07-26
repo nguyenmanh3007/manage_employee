@@ -180,7 +180,8 @@ public class AdminController {
     }
 
     @GetMapping(value = "/search/searchWithTime")
-    public ResponseEntity<?> searchTimeEmployeeIO(@RequestParam(value = "dateStart", required = false) String dateStart, @RequestParam(value = "dateEnd", required = false) String dateEnd) {
+    public ResponseEntity<?> searchTimeEmployeeIO(@RequestParam(value = "dateStart", required = false) String dateStart, @RequestParam(value = "dateEnd", required = false) String dateEnd
+            , @RequestParam(value = "limit", required = false) int limit, @RequestParam(value = "pageRequest", required = false) int pageRequest) {
         if (dateStart == null && dateEnd == null) {
             Date now = new Date();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -192,11 +193,13 @@ public class AdminController {
             DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String dateS = firstDayOfWeek.format(format);
             String dateE = lastDayOfWeek.format(format);
-            List<Confirm> list = confirmService.listEmployeeCheckIO(dateS, dateE);
+            Pageable pageable= PageRequest.of(pageRequest -1,limit,Sort.by("employeeId"));
+            Page<Confirm> list = confirmService.listEmployeeCheckIO(dateS, dateE,pageable);
             List<EmployeeWithConfirmDTO> result = list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
-            List<Confirm> list = confirmService.listEmployeeCheckIO(dateStart, dateEnd);
+            Pageable pageable= PageRequest.of(pageRequest-1,limit,Sort.by("employeeId"));
+            Page<Confirm> list = confirmService.listEmployeeCheckIO(dateStart, dateEnd,pageable);
             List<EmployeeWithConfirmDTO> result = new ArrayList<>();
             list.forEach(confirm -> {
                 EmployeeWithConfirmDTO employeeWithConfirmDTO = confirmConverter.toDTO(confirm);

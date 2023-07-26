@@ -6,6 +6,8 @@ import com.entity.Confirm;
 import com.repository.ConfirmRepository;
 import com.service.ConfirmService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -48,8 +50,8 @@ public class ConfirmServiceImpl implements ConfirmService {
     }
 
     @Override
-    public List<Confirm> listEmployeeCheckIO(String dStart, String dEnd) {
-        return confirmRepository.listEmployeeCheckIO(dStart,dEnd);
+    public Page<Confirm> listEmployeeCheckIO(String dStart, String dEnd, Pageable pageable) {
+        return confirmRepository.listEmployeeCheckIO(dStart,dEnd,pageable);
     }
 
     @Override

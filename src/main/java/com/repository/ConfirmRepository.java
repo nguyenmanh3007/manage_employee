@@ -2,6 +2,8 @@ package com.repository;
 
 import com.dto.EmWithDto;
 import com.entity.Confirm;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +18,9 @@ public interface ConfirmRepository extends JpaRepository<Confirm,Integer> {
     @Query(value = "SELECT * FROM confirm WHERE timeCheckIn LIKE ?1% AND employeeId=?2",nativeQuery = true)
     Confirm checkEmployeeCheckedIn(String timeCheck, int id);
     @Query(value = "SELECT * FROM confirm where timeCheckIn BETWEEN :dateStart AND :dateEnd",nativeQuery = true)
-    List<Confirm> listEmployeeCheckIO(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
+    Page<Confirm> listEmployeeCheckIO(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd, Pageable pageable);
+
+
     @Query(value = "SELECT * FROM confirm where timeCheckIn LIKE %?1% AND (statusCheckIn ='dLate' OR statusCheckIn is null)",nativeQuery = true)
     List<Confirm> listEmployeeCheckInError(String time);
 
