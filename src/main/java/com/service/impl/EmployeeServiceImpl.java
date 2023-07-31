@@ -6,14 +6,15 @@ import com.dto.EmployeeDTO;
 import com.entity.ERole;
 import com.entity.Employee;
 import com.entity.Roles;
+import com.mapper.mapperEmployee.EmployeeMapper;
 import com.repository.ConfirmRepository;
 import com.repository.EmployeeRepository;
 import com.service.EmployeeService;
 import com.service.RoleService;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,15 +24,19 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
     @Autowired
-    private ConfirmRepository confirmRepository;
-    @Autowired
     private EmployeeConverter employeeConverter;
+    private EmployeeMapper employeeMapper = Mappers.getMapper(EmployeeMapper.class);
 
     @Autowired
     private RoleService roleService;
     @Override
     public Employee findByUserName(String un) {
         return employeeRepository.findByUserName(un);
+    }
+
+    @Override
+    public List<Employee> findAll() {
+        return employeeRepository.findAll();
     }
 
     @Override
@@ -81,14 +86,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         employeeDTO.setListRoles(listRoles);
         newEmployee= employeeConverter.toEntity(oldEmployee,employeeDTO);
-        return employeeConverter.toDTO(employeeRepository.save(newEmployee));
+        return employeeMapper.employeeToEmployeeDto(employeeRepository.save(newEmployee));
     }
 
     @Override
     public EmployeeDTO SaveEmployee(EmployeeDTO employeeDTO) {
         Employee newEmployee= new Employee();
-        newEmployee= employeeConverter.toEntity(employeeDTO);
-        return employeeConverter.toDTO(employeeRepository.save(newEmployee));
+        newEmployee= employeeMapper.employeeDtoToEmployee(employeeDTO);
+        return employeeMapper.employeeToEmployeeDto(employeeRepository.save(newEmployee));
     }
 
 

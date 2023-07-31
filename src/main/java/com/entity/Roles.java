@@ -15,10 +15,9 @@ public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="RoleId")
-    private int roleI;
+    private int roleId;
     @Column(name="RoleName")
     @Enumerated(EnumType.STRING)
     private ERole roleName;
-
 
 }

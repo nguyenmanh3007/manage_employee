@@ -1,6 +1,5 @@
 package com.controller;
 
-import com.converter.ConfirmConverter;
 import com.entity.ERole;
 import com.entity.Employee;
 import com.entity.RefreshToken;
@@ -14,7 +13,6 @@ import com.payload.response.JwtResponse;
 import com.payload.response.MessageResponse;
 import com.payload.response.TokenRefreshResponse;
 import com.security.CustomUserDetails;
-import com.service.ConfirmService;
 import com.service.EmployeeService;
 import com.service.RefreshTokenService;
 import com.service.RoleService;
@@ -49,10 +47,6 @@ public class AuthController {
     private JwtTokenProvider tokenProvider;
     @Autowired
     private EmployeeService employeeService;
-    @Autowired
-    private ConfirmService confirmService;
-    @Autowired
-    private ConfirmConverter confirmConverter;
     @Autowired
     private RoleService roleService;
     @Autowired

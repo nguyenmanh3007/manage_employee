@@ -49,4 +49,20 @@ public class Employee {
     @ToString.Exclude // <<<<<<<
     @JsonIgnore
     private Set<Confirm> confirms=new HashSet<>();
+
+
+    public Employee(int code, String userName, String password
+            , String email) {
+        this.code = code;
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+    }
+
+//    public Employee(int code, String userName, String phone, String timeCheckin) {
+//        this.code = code;
+//        this.userName = userName;
+//        this.phone = phone;
+//        this.timeCheckin = timeCheckin;
+//    }
 }

@@ -6,6 +6,9 @@ import com.entity.Confirm;
 import com.repository.ConfirmRepository;
 import com.service.ConfirmService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ConfirmServiceImpl implements ConfirmService {
@@ -72,5 +76,18 @@ public class ConfirmServiceImpl implements ConfirmService {
     @Override
     public List<EmWithDto> listTest(String dateStart, String dateEnd) {
         return confirmRepository.listTest(dateStart,dateEnd);
+    }
+
+    @Override
+    @Cacheable(value = "employees",key ="#id")
+    public Confirm findById(int id) {
+        System.out.println("hello");
+        return confirmRepository.findById(id);
+    }
+
+    @Override
+    @CacheEvict(value = "employees",allEntries = true)
+    public void updateca() {
+
     }
 }

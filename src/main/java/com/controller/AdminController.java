@@ -1,20 +1,18 @@
 package com.controller;
 
 
-import com.converter.ConfirmConverter;
-import com.dto.EmCoDTO;
-import com.dto.EmWithDto;
 import com.dto.EmployeeDTO;
 import com.dto.EmployeeWithConfirmDTO;
 import com.entity.Confirm;
 import com.entity.ERole;
 import com.entity.Employee;
 import com.entity.Roles;
+import com.mapper.mapperEmployee.ConfirmMapper;
 import com.payload.response.MessageResponse;
 import com.service.ConfirmService;
 import com.service.EmployeeService;
 import com.service.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -36,20 +34,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/api/admin")
 public class AdminController {
-    @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private ConfirmService confirmService;
-    @Autowired
-    private PasswordEncoder encoder;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private ConfirmConverter confirmConverter;
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final EmployeeService employeeService;
+    private final ConfirmService confirmService;
+    private final PasswordEncoder encoder;
+    private final RoleService roleService;
+    private final JavaMailSender javaMailSender;
+
 
     @PostMapping("/create")
     public ResponseEntity<?> createEmployee(@RequestBody EmployeeDTO employeeDTO) throws MessagingException {
@@ -69,8 +62,7 @@ public class AdminController {
         employeeDTO.setCreated(strNow);
         Set<String> strRoles = employeeDTO.getListRole();
         Set<Roles> listRoles = new HashSet<>();
-        if (strRoles == null) {
-            // User quyen mac dinh
+        if (strRoles.isEmpty()) {
             Roles userRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
                     .orElseThrow(() -> new RuntimeException("Error: Employee is not found"));
             listRoles.add(userRole);
@@ -79,12 +71,12 @@ public class AdminController {
                 switch (role) {
                     case "admin":
                         Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Error: Admin is not found"));
                         listRoles.add(adminRole);
                         break;
                     case "employee":
                         Roles modRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Error: Admin is not found"));
                         listRoles.add(modRole);
                         break;
                 }
@@ -98,53 +90,6 @@ public class AdminController {
     @PutMapping("/update")
     public ResponseEntity<?> updateEmployee(@RequestBody EmployeeDTO employeeDTO) {
         return ResponseEntity.ok(employeeService.UpdateEmployee(employeeDTO));
-    }
-
-    @GetMapping("/test")
-    @Transactional
-    public ResponseEntity<?> update(@RequestParam(value = "pageRequest",required = false) int pageRequest,
-                                    @RequestParam(value = "limit",required = false) int limit) {
-        //List<EmWithDto> list= confirmService.listTest("05/07/2023","14/07/2023");
-        //List<Confirm> list= confirmService.findAll();
-        //list.forEach(x-> Hibernate.initialize(x.getEmployee()));
-
-        //return ResponseEntity.ok(list);
-        Pageable pageable= PageRequest.of(pageRequest-1,limit, Sort.by("code").descending().and(Sort.by("userName")));
-        Page<EmCoDTO> list=employeeService.findEmCoDTo("user",pageable);
-        //System.out.println(list.getTotalPages()+" "+ list.getNumber()+" "+list.getTotalElements());
-        //List<EmWithDto> list= confirmService.listTest("05/07/2023","13/07/2023");
-        return ResponseEntity.ok(list);
-
-        //Persit,merge
-//        Employee employee = new Employee();
-//        employee.setEmployeeId(10);
-//        employee.setCode(2597);
-//        employee.setPassword("$2a$10$FWdVXt9UrdGyN6LDjCz/guCJwYprIXKAfRvVAd8qPOLBFcDNIIkYG");
-//        employee.setUserName("sosad");
-//        employee.setEmail("nggdfg@gmail.com");
-//
-//        System.out.println(confirmService.findAll());
-//
-//        Confirm confirm1 = new Confirm();
-//        confirm1.setEmployee(employee);
-//        Confirm confirm2 = new Confirm();
-//        confirm2.setStatusCheckOut("vLate");
-//        confirm2.setEmployee(employee);
-//
-//        Set<Confirm> confirms = new HashSet<>();
-//        confirms.add(confirm1);
-//        confirms.add(confirm2);
-//        employee.setConfirms(confirms);
-
-//        employee.getConfirms().add(confirm1);
-//        employee.getConfirms().add(confirm2);
-//        employeeService.saveOrUpdate(employee);
-//        System.out.println(confirmService.findAll());
-//        return ResponseEntity.ok("oke nhe");
-
-        //Remove,detach
-        //employeeService.deleteByEmployeeId(10);
-        //return ResponseEntity.ok("oke nhe");
     }
 
     @DeleteMapping(value = "/delete")
@@ -180,29 +125,34 @@ public class AdminController {
     }
 
     @GetMapping(value = "/search/searchWithTime")
-    public ResponseEntity<?> searchTimeEmployeeIO(@RequestParam(value = "dateStart", required = false) String dateStart, @RequestParam(value = "dateEnd", required = false) String dateEnd
-            , @RequestParam(value = "limit", required = false) int limit, @RequestParam(value = "pageRequest", required = false) int pageRequest) {
+    public ResponseEntity<?> searchTimeEmployeeIO(@RequestParam(value = "dateStart", required = false) String dateStart,
+                                                  @RequestParam(value = "dateEnd", required = false) String dateEnd,
+                                                  @RequestParam(value = "limit", required = false) int limit,
+                                                  @RequestParam(value = "pageRequest", required = false) int pageRequest) {
         if (dateStart == null && dateEnd == null) {
             Date now = new Date();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             String dateNow = sdf.format(now);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.parse(dateNow, formatter);
-            LocalDateTime firstDayOfWeek = dateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).with(LocalTime.MIN);
-            LocalDateTime lastDayOfWeek = dateTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(LocalTime.MAX);
+            LocalDateTime firstDayOfWeek = dateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                                                    .with(LocalTime.MIN);
+            LocalDateTime lastDayOfWeek = dateTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                                                    .with(LocalTime.MAX);
             DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String dateS = firstDayOfWeek.format(format);
             String dateE = lastDayOfWeek.format(format);
             Pageable pageable= PageRequest.of(pageRequest -1,limit,Sort.by("employeeId"));
             Page<Confirm> list = confirmService.listEmployeeCheckIO(dateS, dateE,pageable);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
+            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
+                                                                .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
             Pageable pageable= PageRequest.of(pageRequest-1,limit,Sort.by("employeeId"));
             Page<Confirm> list = confirmService.listEmployeeCheckIO(dateStart, dateEnd,pageable);
             List<EmployeeWithConfirmDTO> result = new ArrayList<>();
             list.forEach(confirm -> {
-                EmployeeWithConfirmDTO employeeWithConfirmDTO = confirmConverter.toDTO(confirm);
+                EmployeeWithConfirmDTO employeeWithConfirmDTO = ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm);
                 result.add(employeeWithConfirmDTO);
             });
             return ResponseEntity.ok(result);
@@ -217,11 +167,13 @@ public class AdminController {
             int year = currentDate.getYear();
             String now = month + "/" + year;
             List<Confirm> list = confirmService.listEmployeeCheckInError(now);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
+            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
+                                                                .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
             List<Confirm> list = confirmService.listEmployeeCheckInError(time);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
+            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
+                                                                .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
     }

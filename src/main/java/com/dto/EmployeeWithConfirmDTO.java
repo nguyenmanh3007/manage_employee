@@ -13,7 +13,7 @@ public class EmployeeWithConfirmDTO {
     private int code;
     private String userName;
     private String timeCheckIn;
-    private String timCheckOut;
+    private String timeCheckOut;
     private int checkInLate;
     private int checkOutEarly;
     private String statusCheckIn;

@@ -35,4 +35,8 @@ public class Confirm {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employeeId",nullable = false)
     private Employee employee;
+
+    public Confirm(Employee employee) {
+        this.employee = employee;
+    }
 }

@@ -9,9 +9,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+
+@Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     Employee findByUserName(String un);
     boolean existsByUserName(String un);
@@ -30,13 +33,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query(value = "SELECT * FROM employee AS cf WHERE cf.Username LIKE %?1% order by cf.Username ASC",nativeQuery = true)
     List<Employee> findByUserNameASC(String username);
 
-//    @Query(value = "SELECT new com.entity.Employee(em.Code,em.Username,em.Phone) FROM employee em, confirm cf WHERE em.EmployeeId=cf.employeeId",nativeQuery = true)
-//    List<Employee> listEmployeeIOwithTime(String dateStart, String dateEnd);
-
-    @Query(value = "SELECT new com.entity.Employee(em.Code, em.Username, em.Phone) FROM employee em INNER JOIN confirm cf ON em.employee_id = cf.employee_id WHERE cf.timeCheckIn BETWEEN :dateStart AND :dateEnd", nativeQuery = true)
+    @Query(value = "SELECT new com.entity.Employee(em.code, em.userName, em.phone,cf.timeCheckIn) FROM Employee em INNER JOIN Confirm cf ON em.employeeId = cf.employee.employeeId WHERE cf.timeCheckIn BETWEEN :dateStart AND :dateEnd")
     List<Employee> listEmployeeIOwithTime(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
 
-    @Query(value = "SELECT new com.dto.EmCoDTO(em.code,em.userName,em.phone) From Employee em where  em.userName like %?1%")
+    @Query(value = "SELECT new com.dto.EmCoDTO(em.code,em.userName,em.phone,em.timeCheckin) From Employee em where  em.userName like %?1%")
     Page<EmCoDTO> findEmCoDTo(String username, Pageable pageable);
 
 }

@@ -1,9 +1,9 @@
 package com.controller;
 
-import com.converter.ConfirmConverter;
 import com.dto.EmployeeWithConfirmDTO;
 import com.entity.*;
 import com.jwt.JwtTokenProvider;
+import com.mapper.mapperEmployee.ConfirmMapper;
 import com.payload.request.CheckioRequest;
 import com.payload.request.LoginRequest;
 import com.payload.request.SignupRequest;
@@ -47,8 +47,6 @@ public class EmployeeController {
     @Autowired
     private ConfirmService confirmService;
     @Autowired
-    private ConfirmConverter confirmConverter;
-    @Autowired
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
@@ -78,7 +76,6 @@ public class EmployeeController {
         Set<String> strRoles = signupRequest.getListRoles();
         Set<Roles> listRoles = new HashSet<>();
         if (strRoles == null) {
-            // User quyen mac dinh
             Roles userRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
                     .orElseThrow(() -> new RuntimeException("Error: Employee is not found"));
             listRoles.add(userRole);
@@ -196,7 +193,9 @@ public class EmployeeController {
         }
     }
     @GetMapping(value = "/searchWithTime")
-    public ResponseEntity<?> searchTimeEmployeeIO(@RequestParam(value = "dateStart",required = false) String dateStart,@RequestParam(value = "dateEnd",required = false) String dateEnd,@RequestParam(value = "username",required = false) String username) {
+    public ResponseEntity<?> searchTimeEmployeeIO(@RequestParam(value = "dateStart",required = false) String dateStart,
+                                                  @RequestParam(value = "dateEnd",required = false) String dateEnd,
+                                                  @RequestParam(value = "username",required = false) String username) {
         if (dateStart == null && dateEnd == null) {
             Date now = new Date();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -209,30 +208,36 @@ public class EmployeeController {
             String dateS = firstDayOfWeek.format(format);
             String dateE = lastDayOfWeek.format(format);
             List<Confirm> list = confirmService.listCheckIOForEmployee(dateS, dateE,username);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
+            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
         else {
             List<Confirm> list = confirmService.listCheckIOForEmployee(dateStart, dateEnd,username);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
+            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
     }
     @GetMapping(value = "/searchErrorWithMonthForEmployee")
-    public ResponseEntity<?> searchErrorTimeEmployeeIOWithMonthForEmployee(@RequestParam(value = "time", required = false) String time,@RequestParam(value = "username", required = false) String username) {
+    public ResponseEntity<?> searchErrorTimeEmployeeIOWithMonthForEmployee(@RequestParam(value = "time", required = false) String time,
+                                                                           @RequestParam(value = "username", required = false) String username) {
         if(time ==null){
             LocalDate currentDate = LocalDate.now();
             int month = currentDate.getMonthValue();
             int year = currentDate.getYear();
             String now=month+"/"+year;
             List<Confirm> list = confirmService.listCheckIOErrorForEmployee(now,username);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
+            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
         else{
             List<Confirm> list = confirmService.listCheckIOErrorForEmployee(time,username);
-            List<EmployeeWithConfirmDTO> result= list.stream().map(confirmConverter::toDTO).collect(Collectors.toList());
+            List<EmployeeWithConfirmDTO> result= list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
+    }
+    @GetMapping(value = "/getEmployee")
+    public ResponseEntity<?> getEmployee() {
+        List<Employee> employee = employeeService.findAll();
+        return ResponseEntity.ok(employee);
     }
 }

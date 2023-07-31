@@ -2,13 +2,11 @@ package com.service;
 
 import com.dto.EmWithDto;
 import com.entity.Confirm;
-import com.entity.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ConfirmService {
     Confirm saveOrUpdate(Confirm confirm);
@@ -21,4 +19,8 @@ public interface ConfirmService {
     List<Confirm> listCheckIOForEmployee(String dateStart,String dateEnd,String username);
     List<Confirm> listCheckIOErrorForEmployee(String time,String username);
     List<EmWithDto> listTest(String dateStart,String dateEnd);
+
+
+    Confirm findById(int id);
+    void updateca();
 }
