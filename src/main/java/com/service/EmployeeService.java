@@ -26,4 +26,6 @@ public interface EmployeeService {
     int createCode();
     Page<EmCoDTO> findEmCoDTo(String username, Pageable pageable);
 
+    List<EmployeeDTO> searchEmployeesByProject(String code);
+
 }

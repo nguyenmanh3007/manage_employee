@@ -37,9 +37,9 @@ public class EmployeeControllerTest {
     @Test
     public void testEmployeeController() throws Exception {
         List<Employee> list= new ArrayList<>();
-        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com");
-        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com");
-        Employee employee = new Employee(1236, "Guptar","123","nam@gmail.com");
+        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com",null);
+        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com",null);
+        Employee employee = new Employee(1236, "Guptar","123","nam@gmail.com",null);
         list.add(employee);
         list.add(employee2);
         list.add(employee3);

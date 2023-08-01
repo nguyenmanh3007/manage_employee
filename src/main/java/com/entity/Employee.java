@@ -41,28 +41,32 @@ public class Employee {
     private boolean employeeStatus;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name="Employee_Role",joinColumns = @JoinColumn(name="EmployeeId"),inverseJoinColumns = @JoinColumn(name="RoleId"))
-    @EqualsAndHashCode.Exclude // <<<<<<<<<<
-    @ToString.Exclude // <<<<<<<
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<Roles> listRoles = new HashSet<>();
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.REMOVE)
-    @EqualsAndHashCode.Exclude // <<<<<<<<<<
-    @ToString.Exclude // <<<<<<<
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @JsonIgnore
     private Set<Confirm> confirms=new HashSet<>();
-
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<Assignment> assignments=new HashSet<>();
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<Comment> comments=new HashSet<>();
 
     public Employee(int code, String userName, String password
-            , String email) {
+            , String email,String phone) {
         this.code = code;
         this.userName = userName;
         this.password = password;
+        this.phone=phone;
         this.email = email;
     }
 
-//    public Employee(int code, String userName, String phone, String timeCheckin) {
-//        this.code = code;
-//        this.userName = userName;
-//        this.phone = phone;
-//        this.timeCheckin = timeCheckin;
-//    }
+    public Employee(int code, String userName, String phone, String timeCheckin) {
+        this.code = code;
+        this.userName = userName;
+        this.phone = phone;
+        this.timeCheckin = timeCheckin;
+    }
 }

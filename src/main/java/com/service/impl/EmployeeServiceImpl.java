@@ -6,8 +6,7 @@ import com.dto.EmployeeDTO;
 import com.entity.ERole;
 import com.entity.Employee;
 import com.entity.Roles;
-import com.mapper.mapperEmployee.EmployeeMapper;
-import com.repository.ConfirmRepository;
+import com.mapper.EmployeeMapper;
 import com.repository.EmployeeRepository;
 import com.service.EmployeeService;
 import com.service.RoleService;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -29,6 +29,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private RoleService roleService;
+
     @Override
     public Employee findByUserName(String un) {
         return employeeRepository.findByUserName(un);
@@ -58,9 +59,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDTO UpdateEmployee(EmployeeDTO employeeDTO) {
         Employee newEmployee= new Employee();
         Employee oldEmployee=  findByEmployeeId(employeeDTO.getEmployeeId());
-        employeeDTO.setCreated(oldEmployee.getCreated());
-        employeeDTO.setCode(oldEmployee.getCode());
-        employeeDTO.setEmployeeStatus(oldEmployee.isEmployeeStatus());
         Set<String> strRoles = employeeDTO.getListRole();
         Set<Roles> listRoles = new HashSet<>();
         if (strRoles.size()==0) {
@@ -73,18 +71,32 @@ public class EmployeeServiceImpl implements EmployeeService {
                 switch (role) {
                     case "admin":
                         Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Error: Role admin is not found"));
                         listRoles.add(adminRole);
                         break;
                     case "employee":
                         Roles employeeRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Error: Role employee is not found"));
                         listRoles.add(employeeRole);
                         break;
                 }
             });
         }
-        employeeDTO.setListRoles(listRoles);
+        employeeDTO=new EmployeeDTO().builder()
+                .employeeId(employeeDTO.getEmployeeId())
+                .userName(employeeDTO.getUserName())
+                .password(employeeDTO.getPassword())
+                .email(employeeDTO.getEmail())
+                .phone(employeeDTO.getPhone())
+                .timeCheckin(employeeDTO.getTimeCheckin())
+                .timeCheckout(employeeDTO.getTimeCheckout())
+                .created(oldEmployee.getCreated())
+                .code(oldEmployee.getCode())
+                .employeeStatus(oldEmployee.isEmployeeStatus())
+                .confirms(oldEmployee.getConfirms())
+                .comments(oldEmployee.getComments())
+                .listRoles(listRoles)
+                .build();
         newEmployee= employeeConverter.toEntity(oldEmployee,employeeDTO);
         return employeeMapper.employeeToEmployeeDto(employeeRepository.save(newEmployee));
     }
@@ -123,7 +135,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteByEmployeeId(int id) {
         employeeRepository.deleteRoleEmployee(id);
-//        confirmRepository.deleteByEmployeeId(id);
         employeeRepository.deleteByEmployeeId(id);
     }
 
@@ -164,6 +175,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Page<EmCoDTO> findEmCoDTo(String username, Pageable pageable) {
         return employeeRepository.findEmCoDTo(username,pageable);
+    }
+
+    @Override
+    public List<EmployeeDTO> searchEmployeesByProject(String code) {
+        List<EmployeeDTO> result= employeeRepository.searchEmployeesByProject(code).stream()
+                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .collect(Collectors.toList());
+        return result;
     }
 
 }

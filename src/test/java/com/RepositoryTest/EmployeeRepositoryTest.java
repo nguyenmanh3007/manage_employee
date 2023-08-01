@@ -27,12 +27,12 @@ public class EmployeeRepositoryTest {
     @Transactional
     @Test
     public void testSavefindDelete() {
-        Employee employee = new Employee(1236, "Guptar","123","nam@gmail.com");
+        Employee employee = new Employee(1239, "Guptar","123","nam@gmail.com",null);
 
         employeeRepository.save(employee);
 
         Employee employee2 = employeeRepository.findByUserName("Guptar");
-        Assertions.assertThat(employee2.getUserName().equals("Guptar"));
+        Assertions.assertThat(employee2.getUserName()).isEqualTo("Guptar");
         employeeRepository.delete(employee2);
         Assertions.assertThat(employeeRepository.findByUserName("Guptar")).isNull();
     }
@@ -42,6 +42,6 @@ public class EmployeeRepositoryTest {
 
         List<Employee> list= employeeRepository.listNotCheckIn(date);
 
-        Assertions.assertThat(list.isEmpty()==false);
+        Assertions.assertThat(list).isNotEmpty();
     }
 }

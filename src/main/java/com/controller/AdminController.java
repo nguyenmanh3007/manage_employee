@@ -1,17 +1,13 @@
 package com.controller;
 
 
-import com.dto.EmployeeDTO;
-import com.dto.EmployeeWithConfirmDTO;
-import com.entity.Confirm;
-import com.entity.ERole;
-import com.entity.Employee;
-import com.entity.Roles;
-import com.mapper.mapperEmployee.ConfirmMapper;
+import com.dto.*;
+import com.entity.*;
+import com.mapper.ConfirmMapper;
+import com.payload.request.AssignmentRequest;
 import com.payload.response.MessageResponse;
-import com.service.ConfirmService;
-import com.service.EmployeeService;
-import com.service.RoleService;
+import com.repository.CommentRepository;
+import com.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +37,11 @@ public class AdminController {
     private final ConfirmService confirmService;
     private final PasswordEncoder encoder;
     private final RoleService roleService;
+    private final ProjectService projectService;
+    private final AssignmentService assignmentService;
+    private final CommentService commentService;
     private final JavaMailSender javaMailSender;
+    private final CommentRepository commentRepository;
 
 
     @PostMapping("/create")
@@ -94,7 +94,7 @@ public class AdminController {
 
     @DeleteMapping(value = "/delete")
     @Transactional
-    public ResponseEntity<?> updateEmployee(@RequestParam(value = "employeeId") int employeeId) {
+    public ResponseEntity<?> deleteEmployee(@RequestParam(value = "employeeId") int employeeId) {
         employeeService.deleteByEmployeeId(employeeId);
         return ResponseEntity.ok("Delete employee successful!");
     }
@@ -125,7 +125,7 @@ public class AdminController {
     }
 
     @GetMapping(value = "/search/searchWithTime")
-    public ResponseEntity<?> searchTimeEmployeeIO(@RequestParam(value = "dateStart", required = false) String dateStart,
+    public ResponseEntity<?> searchTimeEmployeeCheckIO(@RequestParam(value = "dateStart", required = false) String dateStart,
                                                   @RequestParam(value = "dateEnd", required = false) String dateEnd,
                                                   @RequestParam(value = "limit", required = false) int limit,
                                                   @RequestParam(value = "pageRequest", required = false) int pageRequest) {
@@ -160,7 +160,7 @@ public class AdminController {
     }
 
     @GetMapping(value = "/search/searchErrorWithMonth")
-    public ResponseEntity<?> searchErrorTimeEmployeeIOWithMonth(@RequestParam(value = "time", required = false) String time) {
+    public ResponseEntity<?> searchErrorTimeEmployeeCheckIOInMonth(@RequestParam(value = "time", required = false) String time) {
         if (time == null) {
             LocalDate currentDate = LocalDate.now();
             int month = currentDate.getMonthValue();
@@ -176,5 +176,76 @@ public class AdminController {
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
+    }
+    @PostMapping("/employee/searchEmployeeByProject")
+    public ResponseEntity<?> searchEmployeeByProject(@RequestParam(value = "codeProject") String codeProject){
+        return ResponseEntity.ok(employeeService.searchEmployeesByProject(codeProject));
+    }
+    @PostMapping("/project/create")
+    public ResponseEntity<?> createProject(@RequestBody ProjectDTO projectDTO){
+        if (projectService.existsByCode(projectDTO.getCode())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Code of project is already"));
+        }
+        return ResponseEntity.ok(projectService.createProject(projectDTO));
+    }
+    @PutMapping("/project/update")
+    public ResponseEntity<?> updateProject(@RequestBody ProjectDTO projectDTO){
+        return ResponseEntity.ok(projectService.updateProject(projectDTO));
+    }
+    @DeleteMapping("/project/delete")
+    public ResponseEntity<?> deleteProject(@RequestParam(value = "projectId") int projectId){
+        projectService.deleteProject(projectId);
+        return ResponseEntity.ok("Deleted project successful! ");
+    }
+    @PostMapping("/project/assignEmployeeToProject")
+    public ResponseEntity<?> assignEmployeeToTheProject(@RequestBody AssignmentRequest assignmentRequest){
+        if(assignmentService.existsAssignmentByEmployee_CodeAndProject_Code(assignmentRequest.getCodeEmployee(),assignmentRequest.getCodeProject())){
+            return ResponseEntity.badRequest().body("This employee assigned in project!");
+        }
+        Employee employee= employeeService.findByCode(assignmentRequest.getCodeEmployee());
+        Project project= projectService.findByCode(assignmentRequest.getCodeProject());
+        AssignmentDTO assignmentDTO= AssignmentDTO.builder()
+                .employee(employee)
+                .project(project)
+                .roleProject(assignmentRequest.getRoleProject())
+                .build();
+                ;
+        return ResponseEntity.ok(assignmentService.createAssignment(assignmentDTO));
+    }
+    @PostMapping("/comment/create")
+    public ResponseEntity<?> createComment(@RequestParam(value = "codeEmployee") int codeEmployee
+                                            ,@RequestParam(value = "codeProject") String codeProject
+                                            ,@RequestBody CommentDTO commentDTO){
+        Employee employee= employeeService.findByCode(codeEmployee);
+        Project project= projectService.findByCode(codeProject);
+        commentDTO=commentDTO.builder()
+                .content(commentDTO.getContent())
+                .point(commentDTO.getPoint())
+                .employee(employee)
+                .project(project)
+                .build();
+        return ResponseEntity.ok(commentService.createComment(commentDTO));
+    }
+    @PutMapping("/comment/update")
+    public ResponseEntity<?> updateComment(@RequestBody CommentDTO commentDTO){
+        return ResponseEntity.ok(commentService.updateComment(commentDTO));
+    }
+    @DeleteMapping("/comment/delete")
+    public ResponseEntity<?> deleteComment(@RequestParam(value = "commentId") int commentId){
+        commentService.deleteComment(commentId);
+        return ResponseEntity.ok("Deleted comment successful! ");
+    }
+    @GetMapping("/comment/filterCommentWithProject")
+    public ResponseEntity<?> filterCommentWithProject(@RequestParam(value = "projectCode") String projectCode){
+        return ResponseEntity.ok(commentService.filterCommentWithProject(projectCode));
+    }
+    @GetMapping("/comment/filterCommentWithEmployee")
+    public ResponseEntity<?> filterCommentWithEmployee(@RequestParam(value = "employeeCode") int employeeCode){
+        return ResponseEntity.ok(commentService.filterCommentWithEmployee(employeeCode));
+    }
+    @GetMapping("/comment/filterCommentWithTime")
+    public ResponseEntity<?> filterCommentWithTime(@RequestParam(value = "start") String start
+                                                    ,@RequestParam(value = "end") String end){
+        return ResponseEntity.ok(commentService.filterCommentWithTime(start,end));
     }
 }

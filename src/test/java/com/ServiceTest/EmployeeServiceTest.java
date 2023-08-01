@@ -35,7 +35,7 @@ public class EmployeeServiceTest {
     }
     @Test
     public void testfindByUserName() {
-        Employee employee = new Employee(1236, "Guptar","123","nam@gmail.com");
+        Employee employee = new Employee(1236, "Guptar","123","nam@gmail.com",null);
 
         Mockito.when(employeeRepository.findByUserName("Guptar")).thenReturn(employee);
 
@@ -46,9 +46,9 @@ public class EmployeeServiceTest {
     public void testfindAll() {
 
         List<Employee> list = new ArrayList<>();
-        Employee employee1 = new Employee(1236, "Guptar1","123","nam1@gmail.com");
-        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com");
-        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com");
+        Employee employee1 = new Employee(1236, "Guptar1","123","nam1@gmail.com",null);
+        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com",null);
+        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com",null);
         list.add(employee1);
         list.add(employee2);
         list.add(employee3);

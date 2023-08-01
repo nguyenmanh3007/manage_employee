@@ -1,6 +1,7 @@
 package com.repository;
 
 import com.dto.EmCoDTO;
+import com.dto.EmployeeDTO;
 import com.entity.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,5 +39,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     @Query(value = "SELECT new com.dto.EmCoDTO(em.code,em.userName,em.phone,em.timeCheckin) From Employee em where  em.userName like %?1%")
     Page<EmCoDTO> findEmCoDTo(String username, Pageable pageable);
+
+    @Query(value = "SELECT em FROM Assignment ag INNER JOIN Employee em ON em.employeeId=ag.employee.employeeId" +
+            " INNER JOIN Project pj ON ag.project.projectId = pj.projectId " +
+            " WHERE pj.code = ?1")
+    List<Employee> searchEmployeesByProject(String code);
 
 }

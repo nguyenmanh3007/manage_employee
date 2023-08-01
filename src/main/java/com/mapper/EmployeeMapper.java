@@ -1,5 +1,4 @@
-package com.mapper.mapperEmployee;
-
+package com.mapper;
 
 import com.dto.EmployeeDTO;
 import com.entity.Employee;

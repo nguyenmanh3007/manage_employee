@@ -1,19 +1,18 @@
 package com.controller;
 
+import com.dto.CommentDTO;
 import com.dto.EmployeeWithConfirmDTO;
 import com.entity.*;
 import com.jwt.JwtTokenProvider;
-import com.mapper.mapperEmployee.ConfirmMapper;
-import com.payload.request.CheckioRequest;
+import com.mapper.ConfirmMapper;
 import com.payload.request.LoginRequest;
 import com.payload.request.SignupRequest;
 import com.payload.response.JwtResponse;
 import com.payload.response.MessageResponse;
 import com.security.CustomUserDetails;
-import com.service.ConfirmService;
-import com.service.EmployeeService;
-import com.service.RefreshTokenService;
-import com.service.RoleService;
+import com.service.*;
+import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.annotation.RequiredTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -36,22 +36,18 @@ import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/api/employee")
 public class EmployeeController {
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtTokenProvider tokenProvider;
-    @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private ConfirmService confirmService;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private PasswordEncoder encoder;
-    @Autowired
-    private RefreshTokenService refreshTokenService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
+    private final EmployeeService employeeService;
+    private final CommentService commentService;
+    private final ProjectService projectService;
+    private final ConfirmService confirmService;
+    private final RoleService roleService;
+    private final PasswordEncoder encoder;
+    private final RefreshTokenService refreshTokenService;
     @PostMapping("/signup")
     public ResponseEntity<?> registerEmployee(@RequestBody SignupRequest signupRequest) {
         if (employeeService.existsByUserName(signupRequest.getUserName())) {
@@ -117,11 +113,11 @@ public class EmployeeController {
         return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken(), customUserDetails.getCode() ,customUserDetails.getUsername(), customUserDetails.getEmail(),customUserDetails.getPhone(),customUserDetails.getTimeCheckin(),customUserDetails.getTimeCheckout(), listRoles));
     }
     @PostMapping("/checkio")
-    public ResponseEntity<?> checkIOEmployee(@RequestBody CheckioRequest checkioRequest) {
-        if (employeeService.findByCode(checkioRequest.getCode()) == null) {
+    public ResponseEntity<?> checkIOEmployee(@RequestParam(value = "code") int code) {
+        if (employeeService.findByCode(code) == null) {
             return ResponseEntity.badRequest().body(new MessageResponse("Please confirm again!"));
         }
-        Employee employee = employeeService.findByCode(checkioRequest.getCode());
+        Employee employee = employeeService.findByCode(code);
         Date nowDay = new Date();
         SimpleDateFormat sdf_s = new SimpleDateFormat("dd/MM/yyyy");
         String dayNow = sdf_s.format(nowDay);
@@ -234,6 +230,29 @@ public class EmployeeController {
             List<EmployeeWithConfirmDTO> result= list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
+    }
+    @PostMapping("/comment/create")
+    public ResponseEntity<?> createComment(@RequestParam(value = "codeEmployee") int codeEmployee
+            ,@RequestParam(value = "codeProject") String codeProject
+            ,@RequestBody CommentDTO commentDTO){
+        Employee employee= employeeService.findByCode(codeEmployee);
+        Project project= projectService.findByCode(codeProject);
+        commentDTO=commentDTO.builder()
+                .content(commentDTO.getContent())
+                .point(commentDTO.getPoint())
+                .employee(employee)
+                .project(project)
+                .build();
+        return ResponseEntity.ok(commentService.createComment(commentDTO));
+    }
+    @PutMapping("/comment/update")
+    public ResponseEntity<?> updateComment(@RequestBody CommentDTO commentDTO){
+        return ResponseEntity.ok(commentService.updateComment(commentDTO));
+    }
+    @DeleteMapping("/comment/delete")
+    public ResponseEntity<?> deleteComment(@RequestParam(value = "commentId") int commentId){
+        commentService.deleteComment(commentId);
+        return ResponseEntity.ok("Deleted comment successful!");
     }
     @GetMapping(value = "/getEmployee")
     public ResponseEntity<?> getEmployee() {
