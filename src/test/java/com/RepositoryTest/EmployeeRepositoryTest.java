@@ -38,7 +38,7 @@ public class EmployeeRepositoryTest {
     }
     @Test
     public void testlistNotCheckIn() {
-        String date="25/07/2023";
+        String date="2023-07-25";
 
         List<Employee> list= employeeRepository.listNotCheckIn(date);
 

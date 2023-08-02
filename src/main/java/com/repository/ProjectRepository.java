@@ -8,4 +8,5 @@ public interface ProjectRepository extends JpaRepository<Project,Integer> {
 
         Project findByCode(String code);
         boolean existsByCode(String code);
+        boolean existsByNameProject(String nameProject);
 }

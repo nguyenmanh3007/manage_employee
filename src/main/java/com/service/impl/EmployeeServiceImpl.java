@@ -3,32 +3,42 @@ package com.service.impl;
 import com.converter.EmployeeConverter;
 import com.dto.EmCoDTO;
 import com.dto.EmployeeDTO;
+import com.entity.Confirm;
 import com.entity.ERole;
 import com.entity.Employee;
 import com.entity.Roles;
 import com.mapper.EmployeeMapper;
+import com.repository.ConfirmRepository;
 import com.repository.EmployeeRepository;
 import com.service.EmployeeService;
 import com.service.RoleService;
+import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private EmployeeConverter employeeConverter;
+    private final EmployeeRepository employeeRepository;
+    private final EmployeeConverter employeeConverter;
+    private final ConfirmRepository confirmRepository;
     private EmployeeMapper employeeMapper = Mappers.getMapper(EmployeeMapper.class);
 
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
 
     @Override
     public Employee findByUserName(String un) {
@@ -36,8 +46,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
+    public List<EmployeeDTO> findAll() {
+        List<EmployeeDTO> result= employeeRepository.findAll().stream()
+                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .collect(Collectors.toList());
+        return result;
     }
 
     @Override
@@ -51,8 +64,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee saveOrUpdate(Employee employee) {
-        return employeeRepository.save(employee);
+    public EmployeeDTO saveOrUpdate(EmployeeDTO employeeDTO) {
+        return EmployeeMapper.MAPPER.employeeToEmployeeDto(employeeRepository.save(EmployeeMapper.MAPPER.employeeDtoToEmployee(employeeDTO)));
     }
 
     @Override
@@ -62,7 +75,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Set<String> strRoles = employeeDTO.getListRole();
         Set<Roles> listRoles = new HashSet<>();
         if (strRoles.size()==0) {
-            // User quyen mac dinh
             Roles employeeRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
                     .orElseThrow(() -> new RuntimeException("Error: Employee is not found"));
             listRoles.add(employeeRole);
@@ -122,13 +134,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee findByEmployeeId(int id) {
-        List<Employee> list= employeeRepository.findAll();
-        for(Employee employee:list) {
-            if (employee.getEmployeeId() == id) {
-                return employee;
-            }
-        }
-        return null;
+        return employeeRepository.findByEmployeeId(id);
     }
 
 
@@ -139,29 +145,39 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> listNotCheckOut() {
+    public List<EmployeeDTO> listNotCheckOut() {
         Date now= new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String dateNow=sdf.format(now);
-        return employeeRepository.listNotCheckOut(dateNow);
+        List<EmployeeDTO> result= employeeRepository.listNotCheckOut(dateNow).stream()
+                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .collect(Collectors.toList());
+        return result;
     }
 
     @Override
-    public List<Employee> listNotCheckIn() {
+    public List<EmployeeDTO> listNotCheckIn() {
         Date now= new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String dateNow=sdf.format(now);
-        return employeeRepository.listNotCheckIn(dateNow);
+        List<EmployeeDTO> result= employeeRepository.listNotCheckIn(dateNow).stream()
+                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .collect(Collectors.toList());
+        return result;
     }
 
     @Override
-    public List<Employee> findByUserNameASC(String username) {
-        return employeeRepository.findByUserNameASC(username);
+    public List<EmployeeDTO> findByUserNameASC(String username) {
+        return employeeRepository.findByUserNameASC(username).stream()
+                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Employee> listEmployeeIOwithTime(String dateStart, String dateEnd) {
-        return employeeRepository.listEmployeeIOwithTime(dateStart,dateEnd);
+    public List<EmployeeDTO> listEmployeeIOwithTime(String dateStart, String dateEnd) {
+        return employeeRepository.listEmployeeIOwithTime(dateStart,dateEnd).stream()
+                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -173,8 +189,84 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public Confirm employeeCheckInOut(int code) {
+        Employee employee = employeeRepository.findByCode(code);
+        String dayNow = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        if (confirmRepository.checkEmployeeCheckedIn(dayNow,employee.getEmployeeId())==null) {
+            Confirm confirm = new Confirm();
+            confirm.setEmployee(employee);
+            String timeNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            String timeNo=new SimpleDateFormat("HH:mm:ss").format(new Date());
+            //time mac dinh
+            Date timeDefault = null;
+            Date timeCheckIO=null;
+            try {
+                timeDefault = new SimpleDateFormat("HH:mm:ss").parse(employee.getTimeCheckin());
+                timeCheckIO = new SimpleDateFormat("HH:mm:ss").parse(timeNo);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            if(timeCheckIO.before(timeDefault)){
+                confirm.setStatusCheckIn("good");
+                long diffInMilliseconds = timeDefault.getTime() - timeCheckIO.getTime();
+                long diffInMinutes = diffInMilliseconds / (60 * 1000);
+                confirm.setCheckInLate((int) diffInMinutes);
+            }
+            else{
+                confirm.setStatusCheckIn("dLate");
+                long diffInMilliseconds = timeDefault.getTime() - timeCheckIO.getTime();
+                int diffInMinutes = (int) (diffInMilliseconds / (60 * 1000));
+                confirm.setCheckInLate(diffInMinutes);
+            }
+            confirm.setTimeCheckIn(timeNow);
+            return confirm;
+        } else {
+            Confirm confirmTwo = confirmRepository.checkEmployeeCheckedIn(dayNow,employee.getEmployeeId());
+            String timeNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            String timeNo = new SimpleDateFormat("HH:mm:ss").format(new Date());
+            //time mac dinh
+            Date timeDefault = null;
+            Date timeCheckIO=null;
+            try {
+                timeDefault = new SimpleDateFormat("HH:mm:ss").parse(employee.getTimeCheckout());
+                //time checkin/out
+                timeCheckIO = new SimpleDateFormat("HH:mm:ss").parse(timeNo);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            if(timeCheckIO.before(timeDefault)){
+                confirmTwo.setStatusCheckOut("vEarly");
+                long diffInMilliseconds = timeCheckIO.getTime()-timeDefault.getTime();
+                long diffInMinutes = diffInMilliseconds / (60 * 1000);
+                confirmTwo.setCheckOutEarly((int) diffInMinutes);
+            }
+            else{
+                confirmTwo.setStatusCheckOut("good");
+                long diffInMilliseconds = timeCheckIO.getTime()-timeDefault.getTime();
+                long diffInMinutes = diffInMilliseconds / (60 * 1000);
+                confirmTwo.setCheckOutEarly((int) diffInMinutes);
+            }
+            confirmTwo.setTimeCheckOut(timeNow);
+            return confirmTwo;
+        }
+    }
+
+    @Override
     public Page<EmCoDTO> findEmCoDTo(String username, Pageable pageable) {
         return employeeRepository.findEmCoDTo(username,pageable);
+    }
+
+    @Override
+    public String[] getWeekAtNow() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter);
+        LocalDateTime firstDayOfWeek = dateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).with(LocalTime.MIN);
+        LocalDateTime lastDayOfWeek = dateTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(LocalTime.MAX);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String dateS = firstDayOfWeek.format(format);
+        String dateE = lastDayOfWeek.format(format);
+        String[] result= {dateS,dateE};
+        return result;
     }
 
     @Override

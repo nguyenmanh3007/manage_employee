@@ -23,7 +23,6 @@ public class EmployeeDTO {
     private int employeeId;
     private int code;
     private String userName;
-    @JsonIgnore
     private String password;
     private String created;
     private String email;

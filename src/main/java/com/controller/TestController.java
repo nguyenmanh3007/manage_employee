@@ -72,11 +72,8 @@ public class TestController {
     }
     @GetMapping("/mapstruc/get")
     public ResponseEntity<?> findEm() {
-        List<Employee> list=employeeService.findByUserNameASC("user");
-        List<EmployeeDTO> result=list.stream()
-                .map(employee ->  EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
+        List<EmployeeDTO> list=employeeService.findByUserNameASC("user");
+        return ResponseEntity.ok(list);
 
     }
     @GetMapping("/cascade/test")
@@ -87,7 +84,7 @@ public class TestController {
         //Customizing the Result with Class Constructors
         Pageable pageable= PageRequest.of(pageRequest-1,limit, Sort.by("code").descending().and(Sort.by("userName")));
         Page<EmCoDTO> list=employeeService.findEmCoDTo("user",pageable);
-        List<Employee> result=employeeService.listEmployeeIOwithTime("12/07/2023","27/07/2023");
+        List<EmployeeDTO> result=employeeService.listEmployeeIOwithTime("12/07/2023","27/07/2023");
         return ResponseEntity.ok(list);
 
         //Customizing the Result with Spring Data Projection (open/close)

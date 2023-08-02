@@ -1,6 +1,6 @@
 package com.controller;
 
-import com.entity.ERole;
+import com.dto.EmployeeDTO;
 import com.entity.Employee;
 import com.entity.RefreshToken;
 import com.entity.Roles;
@@ -16,7 +16,7 @@ import com.security.CustomUserDetails;
 import com.service.EmployeeService;
 import com.service.RefreshTokenService;
 import com.service.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,27 +32,21 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/api/auth")
 public class AuthController {
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtTokenProvider tokenProvider;
-    @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private RefreshTokenService refreshTokenService;
-    @Autowired
-    private PasswordEncoder encoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
+    private final EmployeeService employeeService;
+    private final RoleService roleService;
+    private final RefreshTokenService refreshTokenService;
+    private final PasswordEncoder encoder;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerEmployee(@RequestBody SignupRequest signupRequest) {
@@ -62,44 +56,21 @@ public class AuthController {
         if (employeeService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Email is already"));
         }
-        Employee employee = new Employee();
-        employee.setCode(employeeService.createCode());
-        employee.setUserName(signupRequest.getUserName());
-        employee.setPassword(encoder.encode(signupRequest.getPassword()));
-        employee.setEmail(signupRequest.getEmail());
-        employee.setPhone(signupRequest.getPhone());
-        employee.setTimeCheckin(signupRequest.getTimeCheckin());
-        employee.setTimeCheckout(signupRequest.getTimeCheckout());
-        employee.setEmployeeStatus(true);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Date dateNow = new Date();
-        String strNow = sdf.format(dateNow);
-        employee.setCreated(strNow);
         Set<String> strRoles = signupRequest.getListRoles();
-        Set<Roles> listRoles = new HashSet<>();
-        if (strRoles == null) {
-            // User quyen mac dinh
-            Roles userRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                    .orElseThrow(() -> new RuntimeException("Error: Employee is not found"));
-            listRoles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        listRoles.add(adminRole);
-                        break;
-                    case "employee":
-                        Roles modRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        listRoles.add(modRole);
-                        break;
-                }
-            });
-        }
-        employee.setListRoles(listRoles);
-        employeeService.saveOrUpdate(employee);
+        Set<Roles> listRoles = roleService.getRole(strRoles);
+        EmployeeDTO employeeDTO=EmployeeDTO.builder()
+                .code(employeeService.createCode())
+                .userName(signupRequest.getUserName())
+                .password(encoder.encode(signupRequest.getPassword()))
+                .email(signupRequest.getEmail())
+                .phone(signupRequest.getPhone())
+                .timeCheckin(signupRequest.getTimeCheckin())
+                .timeCheckout(signupRequest.getTimeCheckout())
+                .employeeStatus(true)
+                .created(new SimpleDateFormat("dd/MM/yyyy").format(new Date()))
+                .listRoles(listRoles)
+                .build();
+        employeeService.saveOrUpdate(employeeDTO);
         return ResponseEntity.ok(new MessageResponse("Employee registered successfully"));
     }
 
@@ -110,11 +81,8 @@ public class AuthController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        System.out.print(customUserDetails);
-        //sinh JWT tra ve Client
         String jwt = tokenProvider.generateToken(customUserDetails);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(customUserDetails.getUserId());
-        //Lay cac quyen cua user
         List<String> listRoles = customUserDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority()).collect(Collectors.toList());
         return ResponseEntity.ok(new JwtResponse(jwt,refreshToken.getToken(), customUserDetails.getCode(), customUserDetails.getUsername(), customUserDetails.getEmail(), customUserDetails.getPhone(), customUserDetails.getTimeCheckin(), customUserDetails.getTimeCheckout(), listRoles));
@@ -127,7 +95,6 @@ public class AuthController {
                 .map(RefreshToken::getEmployee)
                 .map(employee -> {
                     String token = tokenProvider.generateTokenFromUsername(employee.getUserName());
-                    System.out.println(token);
                     return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
                 })
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
@@ -135,16 +102,11 @@ public class AuthController {
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        // Xóa các thông tin đăng nhập khỏi SecurityContextHolder
         SecurityContextHolder.clearContext();
-
-        // Xóa session
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-
-        // Xóa cookie
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

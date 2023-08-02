@@ -14,5 +14,6 @@ public interface ProjectService {
 
     ProjectDTO findByIdProject(int id);
     boolean existsByCode(String code);
+    boolean existsByNameProject(String nameProject);
 
 }

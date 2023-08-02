@@ -27,13 +27,13 @@ public class Comment {
     private String updateTime;
     @Column(name="status")
     private boolean status;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch =FetchType.EAGER)
     @JoinColumn(name = "employeeId")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonIgnore
     private Employee employee;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "projectId")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

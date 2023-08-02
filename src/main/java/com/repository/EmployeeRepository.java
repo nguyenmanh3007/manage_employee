@@ -18,6 +18,8 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     Employee findByUserName(String un);
+    Employee findByEmployeeId(int id);
+    Employee findByCode(int code);
     boolean existsByUserName(String un);
     boolean existsByEmail(String email);
     void deleteByEmployeeId(int id);
@@ -31,7 +33,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
             "NOT IN (SELECT employeeId FROM confirm WHERE timeCheckIn LIKE %?1% GROUP BY employeeId HAVING COUNT(*)>0)", nativeQuery = true)
     List<Employee> listNotCheckIn(String date);
 
-    @Query(value = "SELECT * FROM employee AS cf WHERE cf.Username LIKE %?1% order by cf.Username ASC",nativeQuery = true)
+    @Query(value = "SELECT em FROM Employee em WHERE em.userName LIKE %?1% order by em.userName ASC")
     List<Employee> findByUserNameASC(String username);
 
     @Query(value = "SELECT new com.entity.Employee(em.code, em.userName, em.phone,cf.timeCheckIn) FROM Employee em INNER JOIN Confirm cf ON em.employeeId = cf.employee.employeeId WHERE cf.timeCheckIn BETWEEN :dateStart AND :dateEnd")

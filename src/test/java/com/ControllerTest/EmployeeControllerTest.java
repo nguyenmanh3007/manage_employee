@@ -1,6 +1,7 @@
 package com.ControllerTest;
 
 
+import com.dto.EmployeeDTO;
 import com.entity.Employee;
 import com.repository.EmployeeRepository;
 import com.service.EmployeeService;
@@ -37,14 +38,14 @@ public class EmployeeControllerTest {
     @Test
     public void testEmployeeController() throws Exception {
         List<Employee> list= new ArrayList<>();
-        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com",null);
-        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com",null);
-        Employee employee = new Employee(1236, "Guptar","123","nam@gmail.com",null);
-        list.add(employee);
-        list.add(employee2);
-        list.add(employee3);
+//        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com",null);
+//        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com",null);
+//        Employee employee = new Employee(1236, "Guptar","123","nam@gmail.com",null);
+//        list.add(employee);
+//        list.add(employee2);
+//        list.add(employee3);
         Mockito.when(employeeRepository.findAll()).thenReturn(list);
-        List<Employee> result= employeeService.findAll();
+        List<EmployeeDTO> result= employeeService.findAll();
         mockMvc.perform(MockMvcRequestBuilders.get("/api/employee/getEmployee"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$", Matchers.hasSize(1)));

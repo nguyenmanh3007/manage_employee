@@ -13,6 +13,8 @@ public interface CommentMapper {
     CommentMapper MAPPER= Mappers.getMapper(CommentMapper.class);
 
     @Mapping(source = "content",target = "content")
+    @Mapping(source = "comment.employee.userName",target = "nameEmployee")
+    @Mapping(source = "comment.project.nameProject",target = "nameProject")
     CommentDTO commentToCommentDTO(Comment comment);
 
     @Mapping(source = "content",target = "content")

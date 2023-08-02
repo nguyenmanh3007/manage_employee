@@ -5,6 +5,7 @@ import com.dto.EmWithDto;
 import com.entity.Confirm;
 import com.repository.ConfirmRepository;
 import com.service.ConfirmService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,14 +15,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ConfirmServiceImpl implements ConfirmService {
-    @Autowired
-    private ConfirmRepository confirmRepository;
+    private final ConfirmRepository confirmRepository;
     @Override
     public Confirm saveOrUpdate(Confirm confirm) {
         return confirmRepository.save(confirm);
@@ -76,6 +78,21 @@ public class ConfirmServiceImpl implements ConfirmService {
     @Override
     public List<EmWithDto> listTest(String dateStart, String dateEnd) {
         return confirmRepository.listTest(dateStart,dateEnd);
+    }
+
+    @Override
+    public String getMonthAtNow() {
+        LocalDate currentDate = LocalDate.now();
+        int month = currentDate.getMonthValue();
+        int year = currentDate.getYear();
+        String now="";
+        if(month<10) {
+            now = year + "-0" + month;
+        }
+        else {
+            now = year + "-" + month;
+        }
+        return now;
     }
 
     @Override

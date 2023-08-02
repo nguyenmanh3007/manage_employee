@@ -29,7 +29,6 @@ public class WebsecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
-        // TODO Auto-generated method stub
         return super.authenticationManagerBean();
     }
     @Bean
@@ -48,7 +47,7 @@ public class WebsecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/employee/**").hasRole("EMPLOYEE")
+                .antMatchers("/api/employee/**").hasAnyRole("EMPLOYEE","ADMIN")
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()

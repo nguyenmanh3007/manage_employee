@@ -1,6 +1,7 @@
 package com.ServiceTest;
 
 
+import com.dto.EmployeeDTO;
 import com.entity.Employee;
 import com.repository.EmployeeRepository;
 import com.service.impl.EmployeeServiceImpl;
@@ -55,7 +56,7 @@ public class EmployeeServiceTest {
         Mockito.when(employeeRepository.findAll()).thenReturn(list);
 
         //test
-        List<Employee> empList = employeeService.findAll();
+        List<EmployeeDTO> empList = employeeService.findAll();
         assertEquals(list.size(), empList.size());
     }
 }

@@ -1,6 +1,7 @@
 package com.scheduler;
 
 
+import com.dto.EmployeeDTO;
 import com.entity.Employee;
 import com.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +26,15 @@ public class MailRemind {
 
     @Scheduled(cron = "0 0/30 8-9 * * MON-FRI")
     public void remindCheckIn() throws MessagingException{
-        List<Employee> lEmployee= employeeService.listNotCheckIn();
-        for(Employee employee:lEmployee){
+        List<EmployeeDTO> lEmployee= employeeService.listNotCheckIn();
+        for(EmployeeDTO employee:lEmployee){
             sendEmailCheckIn(employee.getEmail());
         }
     }
     @Scheduled(cron = "0 0/30 18-19 * * MON-FRI")
     public void remindCheckOut() throws MessagingException{
-        List<Employee> lEmployee= employeeService.listNotCheckOut();
-        for(Employee employee:lEmployee){
+        List<EmployeeDTO> lEmployee= employeeService.listNotCheckOut();
+        for(EmployeeDTO employee:lEmployee){
             sendEmailCheckOut(employee.getEmail());
         }
     }

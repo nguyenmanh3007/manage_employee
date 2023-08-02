@@ -16,19 +16,20 @@ public interface ConfirmRepository extends JpaRepository<Confirm,Integer> {
     @Modifying
     @Query(value = "delete from employee_role where EmployeeId=?1",nativeQuery = true)
     void deleteByEmployeeId(int id);
-    @Query(value = "SELECT * FROM confirm WHERE timeCheckIn LIKE ?1% AND employeeId=?2",nativeQuery = true)
+    @Query(value = "SELECT cf FROM Confirm cf WHERE cf.timeCheckIn LIKE ?1% AND cf.employee.employeeId=?2")
     Confirm checkEmployeeCheckedIn(String timeCheck, int id);
-    @Query(value = "SELECT * FROM confirm where timeCheckIn BETWEEN :dateStart AND :dateEnd",nativeQuery = true)
-    Page<Confirm> listEmployeeCheckIO(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd, Pageable pageable);
+    @Query(value = "SELECT cf FROM Confirm cf INNER JOIN Employee em ON cf.employee.employeeId = em.employeeId" +
+            " WHERE cf.timeCheckIn BETWEEN ?1 AND ?2")
+    Page<Confirm> listEmployeeCheckIO(String dateStart,String dateEnd, Pageable pageable);
 
-
-    @Query(value = "SELECT * FROM confirm where timeCheckIn LIKE %?1% AND (statusCheckIn ='dLate' OR statusCheckIn is null)",nativeQuery = true)
+    @Query(value = "SELECT cf FROM Confirm cf where cf.timeCheckIn LIKE ?1% AND (cf.statusCheckIn ='dLate' OR cf.statusCheckIn is null)")
     List<Confirm> listEmployeeCheckInError(String time);
 
     //employee
-    @Query(value = "SELECT * FROM confirm as cf, employee where (cf.timeCheckIn BETWEEN :dateStart AND :dateEnd) AND cf.employeeId=employee.EmployeeId AND employee.Username=:username ",nativeQuery = true)
-    List<Confirm> listCheckIOForEmployee(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd,@Param("username") String username);
-    @Query(value = "SELECT * FROM confirm as cf,employee where cf.timeCheckIn LIKE %?1% AND (statusCheckIn ='dLate' OR statusCheckIn is null) AND cf.employeeId=employee.EmployeeId AND employee.Username=?2",nativeQuery = true)
+    @Query(value = "SELECT cf FROM Confirm cf INNER JOIN Employee em ON cf.employee.employeeId=em.employeeId " +
+            "WHERE SUBSTRING(cf.timeCheckIn, 1, 10) BETWEEN ?1 AND ?2 AND em.userName = ?3")
+    List<Confirm> listCheckIOForEmployee(String dateStart, String dateEnd,String username);
+    @Query(value = "SELECT cf FROM Confirm cf,Employee em  where cf.timeCheckIn LIKE %?1% AND (cf.statusCheckIn ='dLate' OR cf.statusCheckIn is null) AND cf.employee.employeeId=em.employeeId AND em.userName=?2")
     List<Confirm> listCheckIOErrorForEmployee(String time,String username);
 
     //close Projection

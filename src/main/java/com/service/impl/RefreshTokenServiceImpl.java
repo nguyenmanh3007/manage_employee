@@ -6,6 +6,7 @@ import com.exception.TokenRefreshException;
 import com.repository.EmployeeRepository;
 import com.repository.RefreshTokenRepository;
 import com.service.RefreshTokenService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,15 +17,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Value("${com.jwt.refreshExpiration}")
     private Long refreshTokenDurationMs;
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
-
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final EmployeeRepository employeeRepository;
     @Override
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);

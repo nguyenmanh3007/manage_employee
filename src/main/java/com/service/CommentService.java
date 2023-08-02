@@ -11,8 +11,6 @@ public interface CommentService {
     CommentDTO updateComment(CommentDTO commentDTO);
 
     void deleteComment(int commentId);
-
-    void save(Comment comment);
     Comment findCommentByCommentId(int idComment);
     List<CommentDTO> filterCommentWithProject(String codeProject);
     List<CommentDTO> filterCommentWithEmployee(int codeEmployee);

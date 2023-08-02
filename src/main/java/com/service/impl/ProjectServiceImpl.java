@@ -6,16 +6,16 @@ import com.entity.Project;
 import com.mapper.ProjectMapper;
 import com.repository.ProjectRepository;
 import com.service.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
         Date now= new Date();
@@ -58,5 +58,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean existsByCode(String code) {
         return projectRepository.existsByCode(code);
+    }
+
+    @Override
+    public boolean existsByNameProject(String nameProject) {
+        return projectRepository.existsByNameProject(nameProject);
     }
 }

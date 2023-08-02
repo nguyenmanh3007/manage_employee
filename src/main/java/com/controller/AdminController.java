@@ -6,7 +6,6 @@ import com.entity.*;
 import com.mapper.ConfirmMapper;
 import com.payload.request.AssignmentRequest;
 import com.payload.response.MessageResponse;
-import com.repository.CommentRepository;
 import com.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -20,12 +19,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +34,6 @@ public class AdminController {
     private final AssignmentService assignmentService;
     private final CommentService commentService;
     private final JavaMailSender javaMailSender;
-    private final CommentRepository commentRepository;
 
 
     @PostMapping("/create")
@@ -52,49 +44,42 @@ public class AdminController {
         if (employeeService.existsByEmail(employeeDTO.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Email is already"));
         }
-        employeeDTO.setCode(employeeService.createCode());
-        String pass = employeeDTO.getPassword();
-        employeeDTO.setPassword(encoder.encode(employeeDTO.getPassword()));
-        employeeDTO.setEmployeeStatus(true);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Date dateNow = new Date();
-        String strNow = sdf.format(dateNow);
-        employeeDTO.setCreated(strNow);
+        String password = employeeDTO.getPassword();
         Set<String> strRoles = employeeDTO.getListRole();
-        Set<Roles> listRoles = new HashSet<>();
-        if (strRoles.isEmpty()) {
-            Roles userRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                    .orElseThrow(() -> new RuntimeException("Error: Employee is not found"));
-            listRoles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Admin is not found"));
-                        listRoles.add(adminRole);
-                        break;
-                    case "employee":
-                        Roles modRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                                .orElseThrow(() -> new RuntimeException("Error: Admin is not found"));
-                        listRoles.add(modRole);
-                        break;
-                }
-            });
-        }
-        employeeDTO.setListRoles(listRoles);
-        sendEmail(employeeDTO.getEmail(), employeeDTO.getUserName(), pass);
+        Set<Roles> listRoles = roleService.getRole(strRoles);
+        employeeDTO=EmployeeDTO.builder()
+                .userName(employeeDTO.getUserName())
+                .password(encoder.encode(employeeDTO.getPassword()))
+                .code(employeeService.createCode())
+                .email(employeeDTO.getEmail())
+                .phone(employeeDTO.getPhone())
+                .timeCheckin(employeeDTO.getTimeCheckin())
+                .timeCheckout(employeeDTO.getTimeCheckout())
+                .employeeStatus(true)
+                .created(new SimpleDateFormat("dd/MM/yyyy").format(new Date()))
+                .listRoles(listRoles)
+                .build();
+        sendEmail(employeeDTO.getEmail(), employeeDTO.getUserName(), password);
         return ResponseEntity.ok(employeeService.SaveEmployee(employeeDTO));
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        if (employeeService.existsByUserName(employeeDTO.getUserName())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Username is already"));
+        }
+        if (employeeService.existsByEmail(employeeDTO.getEmail())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Email is already"));
+        }
         return ResponseEntity.ok(employeeService.UpdateEmployee(employeeDTO));
     }
 
     @DeleteMapping(value = "/delete")
     @Transactional
     public ResponseEntity<?> deleteEmployee(@RequestParam(value = "employeeId") int employeeId) {
+        if(employeeService.findByEmployeeId(employeeId) == null){
+            return ResponseEntity.badRequest().body(new MessageResponse("Not found employee!"));
+        }
         employeeService.deleteByEmployeeId(employeeId);
         return ResponseEntity.ok("Delete employee successful!");
     }
@@ -116,11 +101,10 @@ public class AdminController {
 
     @GetMapping(value = "/search/searchWithName")
     public ResponseEntity<?> searchEmployee(@RequestParam(value = "userName") String username) {
-        List<Employee> lEmployees = employeeService.findByUserNameASC(username);
+        List<EmployeeDTO> lEmployees = employeeService.findByUserNameASC(username);
         if (lEmployees.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Employee not found!"));
         }
-        System.out.println(lEmployees);
         return ResponseEntity.ok(lEmployees);
     }
 
@@ -130,25 +114,13 @@ public class AdminController {
                                                   @RequestParam(value = "limit", required = false) int limit,
                                                   @RequestParam(value = "pageRequest", required = false) int pageRequest) {
         if (dateStart == null && dateEnd == null) {
-            Date now = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            String dateNow = sdf.format(now);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-            LocalDateTime dateTime = LocalDateTime.parse(dateNow, formatter);
-            LocalDateTime firstDayOfWeek = dateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                                                    .with(LocalTime.MIN);
-            LocalDateTime lastDayOfWeek = dateTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                                                    .with(LocalTime.MAX);
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            String dateS = firstDayOfWeek.format(format);
-            String dateE = lastDayOfWeek.format(format);
-            Pageable pageable= PageRequest.of(pageRequest -1,limit,Sort.by("employeeId"));
-            Page<Confirm> list = confirmService.listEmployeeCheckIO(dateS, dateE,pageable);
+            Pageable pageable= PageRequest.of(pageRequest -1,limit,Sort.by("employee.employeeId"));
+            Page<Confirm> list = confirmService.listEmployeeCheckIO(employeeService.getWeekAtNow()[0],employeeService.getWeekAtNow()[1],pageable);
             List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
-            Pageable pageable= PageRequest.of(pageRequest-1,limit,Sort.by("employeeId"));
+            Pageable pageable= PageRequest.of(pageRequest-1,limit,Sort.by("employee.employeeId"));
             Page<Confirm> list = confirmService.listEmployeeCheckIO(dateStart, dateEnd,pageable);
             List<EmployeeWithConfirmDTO> result = new ArrayList<>();
             list.forEach(confirm -> {
@@ -162,11 +134,8 @@ public class AdminController {
     @GetMapping(value = "/search/searchErrorWithMonth")
     public ResponseEntity<?> searchErrorTimeEmployeeCheckIOInMonth(@RequestParam(value = "time", required = false) String time) {
         if (time == null) {
-            LocalDate currentDate = LocalDate.now();
-            int month = currentDate.getMonthValue();
-            int year = currentDate.getYear();
-            String now = month + "/" + year;
-            List<Confirm> list = confirmService.listEmployeeCheckInError(now);
+            List<Confirm> list = confirmService.listEmployeeCheckInError(confirmService.getMonthAtNow());
+            System.out.println(confirmService.getMonthAtNow());
             List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
@@ -190,10 +159,16 @@ public class AdminController {
     }
     @PutMapping("/project/update")
     public ResponseEntity<?> updateProject(@RequestBody ProjectDTO projectDTO){
+        if (projectService.existsByCode(projectDTO.getCode())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Code of project is already"));
+        }
         return ResponseEntity.ok(projectService.updateProject(projectDTO));
     }
     @DeleteMapping("/project/delete")
     public ResponseEntity<?> deleteProject(@RequestParam(value = "projectId") int projectId){
+        if(projectService.findByIdProject(projectId)==null){
+            return ResponseEntity.badRequest().body(new MessageResponse("Not found project!"));
+        }
         projectService.deleteProject(projectId);
         return ResponseEntity.ok("Deleted project successful! ");
     }

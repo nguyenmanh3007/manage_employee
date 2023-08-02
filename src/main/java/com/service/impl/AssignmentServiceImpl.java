@@ -5,13 +5,14 @@ import com.dto.AssignmentDTO;
 import com.mapper.AssignmentMapper;
 import com.repository.AssignmentRepository;
 import com.service.AssignmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AssignmentServiceImpl implements AssignmentService {
-    @Autowired
-    private AssignmentRepository assignmentRepository;
+    private final AssignmentRepository assignmentRepository;
     @Override
     public AssignmentDTO createAssignment(AssignmentDTO assignmentDTO) {
         return AssignmentMapper.MAPPER.assignmentToAssignmentDto(assignmentRepository.save(AssignmentMapper.MAPPER.assignmentDtoToAssignment(assignmentDTO)));

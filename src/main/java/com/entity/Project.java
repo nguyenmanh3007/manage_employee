@@ -20,7 +20,7 @@ public class Project {
     private int projectId;
     @Column(name="Code",unique = true, nullable = false)
     private String code;
-    @Column(name="NameProject", nullable = false)
+    @Column(name="NameProject",unique = true, nullable = false)
     private String nameProject;
     @Column(name="CreateDay",nullable = false)
     private String createDay;

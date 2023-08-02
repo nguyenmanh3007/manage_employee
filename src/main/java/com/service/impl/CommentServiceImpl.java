@@ -25,9 +25,6 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-
-    private final EmployeeRepository employeeRepository;
-    private final ProjectRepository projectRepository;
     @Override
     public CommentDTO createComment(CommentDTO commentDTO) {
         Date now= new Date();
@@ -56,11 +53,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteComment(int commentId) {
         commentRepository.deleteById(commentId);
-    }
-
-    @Override
-    public void save(Comment comment) {
-        commentRepository.save(comment);
     }
 
     @Override

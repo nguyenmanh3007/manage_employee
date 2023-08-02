@@ -2,6 +2,7 @@ package com.dto;
 
 import com.entity.Employee;
 import com.entity.Project;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,10 @@ public class CommentDTO {
     private String createTime;
     private String updateTime;
     private boolean status;
+    private String nameEmployee;
+    private String nameProject;
+    @JsonIgnore
     private Employee employee;
+    @JsonIgnore
     private Project project;
 }
