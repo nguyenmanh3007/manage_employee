@@ -2,27 +2,22 @@ package com.scheduler;
 
 
 import com.dto.EmployeeDTO;
-import com.entity.Employee;
 import com.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class MailRemind {
-    @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private JavaMailSender javaMailSender;
+
+    private final EmployeeService employeeService;
+    private final JavaMailSender javaMailSender;
 
     @Scheduled(cron = "0 0/30 8-9 * * MON-FRI")
     public void remindCheckIn() throws MessagingException{

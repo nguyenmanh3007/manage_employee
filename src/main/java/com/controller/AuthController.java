@@ -81,7 +81,7 @@ public class AuthController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String jwt = tokenProvider.generateToken(customUserDetails);
+        String jwt = tokenProvider.generateTokenFromUsername(customUserDetails.getUsername());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(customUserDetails.getUserId());
         List<String> listRoles = customUserDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority()).collect(Collectors.toList());

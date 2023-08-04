@@ -16,27 +16,35 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `roles`
+-- Table structure for table `comment`
 --
 
-DROP TABLE IF EXISTS `roles`;
+DROP TABLE IF EXISTS `comment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `roles` (
-  `RoleId` int NOT NULL AUTO_INCREMENT,
-  `RoleName` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`RoleId`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `comment` (
+  `CommentId` int NOT NULL AUTO_INCREMENT,
+  `content` varchar(255) NOT NULL,
+  `createTime` varchar(255) DEFAULT NULL,
+  `point` int DEFAULT NULL,
+  `employeeId` int DEFAULT NULL,
+  `projectId` int DEFAULT NULL,
+  `status` bit(1) DEFAULT NULL,
+  `updateTime` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`CommentId`),
+  KEY `FKd85lhjseeui9kry7120v045ld` (`employeeId`),
+  KEY `FK65oiparlguwc2f1nacg00bpli` (`projectId`)
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `roles`
+-- Dumping data for table `comment`
 --
 
-LOCK TABLES `roles` WRITE;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (2,'ROLE_EMPLOYEE'),(1,'ROLE_ADMIN');
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+LOCK TABLES `comment` WRITE;
+/*!40000 ALTER TABLE `comment` DISABLE KEYS */;
+INSERT INTO `comment` VALUES (23,'Cho tôi thêm chút thời gian!','01/08/2023 16:39:45',7,30,2,_binary '',NULL),(24,'Cho tôi thêm chút thời gian!','02/08/2023 11:38:38',7,30,2,_binary '',NULL),(25,'Cho tôi thêm chút thời gian!','02/08/2023 13:42:54',7,30,2,_binary '',NULL);
+/*!40000 ALTER TABLE `comment` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -48,4 +56,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-04 23:22:16
+-- Dump completed on 2023-08-04 23:22:15

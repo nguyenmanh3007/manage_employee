@@ -37,15 +37,15 @@ public class ConfirmServiceTest {
     public void testfindAll() {
 
         List<Confirm> list = new ArrayList<>();
-        Employee employee1 = new Employee(1236, "Guptar1","123","nam1@gmail.com");
-        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com");
-        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com");
-        Confirm confirm1 = new Confirm(employee1);
-        Confirm confirm2 = new Confirm(employee2);
-        Confirm confirm3 = new Confirm(employee3);
-        list.add(confirm1);
-        list.add(confirm2);
-        list.add(confirm3);
+//        Employee employee1 = new Employee(1236, "Guptar1","123","nam1@gmail.com");
+//        Employee employee2 = new Employee(1237, "Guptar2","123","nam2@gmail.com");
+//        Employee employee3 = new Employee(1238, "Guptar3","123","nam3@gmail.com");
+//        Confirm confirm1 = new Confirm(employee1);
+//        Confirm confirm2 = new Confirm(employee2);
+//        Confirm confirm3 = new Confirm(employee3);
+//        list.add(confirm1);
+//        list.add(confirm2);
+//        list.add(confirm3);
         Mockito.when(confirmRepository.findAll()).thenReturn(list);
 
         //test

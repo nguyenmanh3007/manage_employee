@@ -37,14 +37,6 @@ public class CustomUserDetails implements UserDetails {
         List<GrantedAuthority> listAuthorities= employee.getListRoles().stream()
                 .map(roles -> new SimpleGrantedAuthority(roles.getRoleName().name()))
                 .collect(Collectors.toList());
-
-//		<=>
-//		List<GrantedAuthority> list= new ArrayList<>();
-//		for(Roles roles: users.getListRoles()) {
-//			SimpleGrantedAuthority sga = new SimpleGrantedAuthority(roles.getRoleName().name());
-//			list.add(sga);
-//		}
-//		listAuthorities=list;
         // Tra ve doi tuong CustomUserDetails
         return new CustomUserDetails(
                 employee.getEmployeeId(),

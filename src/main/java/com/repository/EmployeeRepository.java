@@ -1,7 +1,6 @@
 package com.repository;
 
 import com.dto.EmCoDTO;
-import com.dto.EmployeeDTO;
 import com.entity.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,11 +25,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Modifying
     @Query(value = "delete from employee_role where EmployeeId=?1",nativeQuery = true)
     void deleteRoleEmployee(int id);
-    @Query(value = "SELECT * FROM employee AS cf WHERE cf.EmployeeId " +
-            "IN (SELECT employeeId FROM confirm WHERE timeCheckIn LIKE %?1% AND timeCheckOut is null  GROUP BY employeeId HAVING COUNT(*) = 1)", nativeQuery = true)
+    @Query(value = "SELECT em FROM Employee em WHERE em.employeeId " +
+            "IN (SELECT cf.employee.employeeId FROM Confirm cf WHERE cf.timeCheckIn LIKE ?1% AND cf.timeCheckOut is null  GROUP BY cf.employee.employeeId HAVING COUNT(*) = 1)")
     List<Employee> listNotCheckOut(String date);
-    @Query(value = "SELECT * FROM employee AS cf WHERE cf.EmployeeId " +
-            "NOT IN (SELECT employeeId FROM confirm WHERE timeCheckIn LIKE %?1% GROUP BY employeeId HAVING COUNT(*)>0)", nativeQuery = true)
+    @Query(value = "SELECT em FROM Employee em WHERE em.employeeId " +
+            "NOT IN (SELECT cf.employee.employeeId FROM Confirm cf WHERE cf.timeCheckIn LIKE ?1% GROUP BY cf.employee.employeeId HAVING COUNT(*)>0)")
     List<Employee> listNotCheckIn(String date);
 
     @Query(value = "SELECT em FROM Employee em WHERE em.userName LIKE %?1% order by em.userName ASC")

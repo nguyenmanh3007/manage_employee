@@ -36,7 +36,7 @@ CREATE TABLE `employee_role` (
 
 LOCK TABLES `employee_role` WRITE;
 /*!40000 ALTER TABLE `employee_role` DISABLE KEYS */;
-INSERT INTO `employee_role` VALUES (16,2),(17,1),(17,2),(18,2);
+INSERT INTO `employee_role` VALUES (16,2),(17,1),(17,2),(18,2),(26,1),(26,2),(28,2),(29,2),(30,2),(35,1),(35,2),(37,1),(37,2),(38,2),(39,1),(39,2),(58,1),(58,2),(63,1),(64,1),(64,2);
 /*!40000 ALTER TABLE `employee_role` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -49,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-07-21 16:04:24
+-- Dump completed on 2023-08-04 23:22:16

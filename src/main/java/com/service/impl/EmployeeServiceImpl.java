@@ -73,27 +73,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee newEmployee= new Employee();
         Employee oldEmployee=  findByEmployeeId(employeeDTO.getEmployeeId());
         Set<String> strRoles = employeeDTO.getListRole();
-        Set<Roles> listRoles = new HashSet<>();
-        if (strRoles.size()==0) {
-            Roles employeeRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                    .orElseThrow(() -> new RuntimeException("Error: Employee is not found"));
-            listRoles.add(employeeRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role admin is not found"));
-                        listRoles.add(adminRole);
-                        break;
-                    case "employee":
-                        Roles employeeRole = roleService.findByRoleName(ERole.ROLE_EMPLOYEE)
-                                .orElseThrow(() -> new RuntimeException("Error: Role employee is not found"));
-                        listRoles.add(employeeRole);
-                        break;
-                }
-            });
-        }
+        Set<Roles> listRoles = roleService.getRole(strRoles);
         employeeDTO=new EmployeeDTO().builder()
                 .employeeId(employeeDTO.getEmployeeId())
                 .userName(employeeDTO.getUserName())
@@ -115,8 +95,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDTO SaveEmployee(EmployeeDTO employeeDTO) {
-        Employee newEmployee= new Employee();
-        newEmployee= employeeMapper.employeeDtoToEmployee(employeeDTO);
+        Employee newEmployee= employeeMapper.employeeDtoToEmployee(employeeDTO);
         return employeeMapper.employeeToEmployeeDto(employeeRepository.save(newEmployee));
     }
 
@@ -147,7 +126,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDTO> listNotCheckOut() {
         Date now= new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateNow=sdf.format(now);
         List<EmployeeDTO> result= employeeRepository.listNotCheckOut(dateNow).stream()
                 .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
@@ -158,7 +137,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDTO> listNotCheckIn() {
         Date now= new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateNow=sdf.format(now);
         List<EmployeeDTO> result= employeeRepository.listNotCheckIn(dateNow).stream()
                 .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))

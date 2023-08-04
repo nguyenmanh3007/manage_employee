@@ -16,17 +16,6 @@ public class JwtTokenProvider {
     private String JWT_SECRET;
     @Value("${com.jwt.expiration}")
     private int JWT_EXPIRATION;
-    //Tao jwt tu thong tin user(Dua vao thong tin customdetail de sinh ra chuoi jwt duy nhat)
-    public String generateToken(CustomUserDetails customUserDetails) {
-        Date now = new Date(new Date().getTime());
-        Date dateExpired = new Date(now.getTime()+JWT_EXPIRATION);
-        //Tao chuoi jwt tu username cua user
-        return Jwts.builder().setSubject(customUserDetails.getUsername())
-                .setIssuedAt(now)
-                .setExpiration(dateExpired)
-                .signWith(SignatureAlgorithm.HS512,JWT_SECRET).compact();
-    }
-    //lay thong tin user tu jwt
     public String getUserNameFromJwt(String token) {
         Claims claims= Jwts.parser().setSigningKey(JWT_SECRET)
                 .parseClaimsJws(token).getBody()
@@ -35,8 +24,11 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
     public String generateTokenFromUsername(String username) {
-        return Jwts.builder().setSubject(username).setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + JWT_EXPIRATION)).signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date(new Date().getTime()))
+                .setExpiration(new Date((new Date()).getTime() + JWT_EXPIRATION))
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }
     //validate thong tin cua chuoi jwt

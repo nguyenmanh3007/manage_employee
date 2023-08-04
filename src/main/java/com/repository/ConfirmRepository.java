@@ -41,6 +41,4 @@ public interface ConfirmRepository extends JpaRepository<Confirm,Integer> {
 
     @Query(value = "SELECT cf from Confirm cf where cf.id=?1")
     Confirm findById(int id);
-
-
 }

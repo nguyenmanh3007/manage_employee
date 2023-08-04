@@ -16,27 +16,31 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `roles`
+-- Table structure for table `assignment`
 --
 
-DROP TABLE IF EXISTS `roles`;
+DROP TABLE IF EXISTS `assignment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `roles` (
-  `RoleId` int NOT NULL AUTO_INCREMENT,
-  `RoleName` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`RoleId`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `assignment` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RoleProject` varchar(255) DEFAULT NULL,
+  `EmployeeId` int DEFAULT NULL,
+  `ProjectId` int DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK1x9k5c0q95exmj753egbrdtc0` (`EmployeeId`),
+  KEY `FKg9s0v7cki0v4adnr08fff34h9` (`ProjectId`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `roles`
+-- Dumping data for table `assignment`
 --
 
-LOCK TABLES `roles` WRITE;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (2,'ROLE_EMPLOYEE'),(1,'ROLE_ADMIN');
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+LOCK TABLES `assignment` WRITE;
+/*!40000 ALTER TABLE `assignment` DISABLE KEYS */;
+INSERT INTO `assignment` VALUES (1,'PM',38,2),(2,'BE',26,2),(6,'FE',60,2),(7,'DA',37,2),(8,'BA',29,2);
+/*!40000 ALTER TABLE `assignment` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

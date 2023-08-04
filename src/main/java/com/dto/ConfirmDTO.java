@@ -1,15 +1,15 @@
 package com.dto;
 
+import com.entity.Employee;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmployeeWithConfirmDTO {
+public class ConfirmDTO {
     private int code;
     private String userName;
     private String timeCheckIn;
@@ -18,4 +18,6 @@ public class EmployeeWithConfirmDTO {
     private int checkOutEarly;
     private String statusCheckIn;
     private String statusCheckOut;
+    @JsonIgnore
+    private Employee employee;
 }

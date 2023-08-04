@@ -1,7 +1,8 @@
 package com.mapper;
 
 
-import com.dto.EmployeeWithConfirmDTO;
+
+import com.dto.ConfirmDTO;
 import com.entity.Confirm;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,7 +17,7 @@ public interface ConfirmMapper {
     @Mapping(source = "confirm.employee.code",target = "code")
     @Mapping(source = "confirm.employee.userName",target = "userName")
     @Mapping(source = "confirm.timeCheckOut", target = "timeCheckOut")
-    EmployeeWithConfirmDTO confirmToEmployeeWithConfirmDTO(Confirm confirm);
+    ConfirmDTO confirmToConfirmDTO(Confirm confirm);
 
 
 }

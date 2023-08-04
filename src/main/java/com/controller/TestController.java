@@ -4,14 +4,16 @@ package com.controller;
 import com.dto.EmCoDTO;
 import com.dto.EmployeeDTO;
 import com.entity.Confirm;
-import com.entity.Employee;
-import com.mapper.EmployeeMapper;
+
 import com.payload.response.MessageResponse;
+import com.scope.EmailService;
+import com.scope.UserService;
 import com.service.ConfirmService;
 import com.service.EmployeeService;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +31,6 @@ import reactor.core.publisher.Mono;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -38,6 +39,8 @@ public class TestController {
     private final EmployeeService employeeService;
     private final ConfirmService confirmService;
     private final CacheManager cacheManager;
+    private final UserService userService;
+    private final EmailService emailService;
 
     @GetMapping("/cache/delete")
     @Transactional

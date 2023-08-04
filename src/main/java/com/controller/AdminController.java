@@ -116,16 +116,16 @@ public class AdminController {
         if (dateStart == null && dateEnd == null) {
             Pageable pageable= PageRequest.of(pageRequest -1,limit,Sort.by("employee.employeeId"));
             Page<Confirm> list = confirmService.listEmployeeCheckIO(employeeService.getWeekAtNow()[0],employeeService.getWeekAtNow()[1],pageable);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
+            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
             Pageable pageable= PageRequest.of(pageRequest-1,limit,Sort.by("employee.employeeId"));
             Page<Confirm> list = confirmService.listEmployeeCheckIO(dateStart, dateEnd,pageable);
-            List<EmployeeWithConfirmDTO> result = new ArrayList<>();
+            List<ConfirmDTO> result = new ArrayList<>();
             list.forEach(confirm -> {
-                EmployeeWithConfirmDTO employeeWithConfirmDTO = ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm);
-                result.add(employeeWithConfirmDTO);
+                ConfirmDTO confirmDTO = ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm);
+                result.add(confirmDTO);
             });
             return ResponseEntity.ok(result);
         }
@@ -136,12 +136,12 @@ public class AdminController {
         if (time == null) {
             List<Confirm> list = confirmService.listEmployeeCheckInError(confirmService.getMonthAtNow());
             System.out.println(confirmService.getMonthAtNow());
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
+            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
             List<Confirm> list = confirmService.listEmployeeCheckInError(time);
-            List<EmployeeWithConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToEmployeeWithConfirmDTO(confirm))
+            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }

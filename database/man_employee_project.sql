@@ -16,27 +16,29 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `roles`
+-- Table structure for table `project`
 --
 
-DROP TABLE IF EXISTS `roles`;
+DROP TABLE IF EXISTS `project`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `roles` (
-  `RoleId` int NOT NULL AUTO_INCREMENT,
-  `RoleName` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`RoleId`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `project` (
+  `ProjectId` int NOT NULL AUTO_INCREMENT,
+  `Code` varchar(255) NOT NULL,
+  `CreateDay` varchar(255) NOT NULL,
+  `NameProject` varchar(255) NOT NULL,
+  PRIMARY KEY (`ProjectId`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `roles`
+-- Dumping data for table `project`
 --
 
-LOCK TABLES `roles` WRITE;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (2,'ROLE_EMPLOYEE'),(1,'ROLE_ADMIN');
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+LOCK TABLES `project` WRITE;
+/*!40000 ALTER TABLE `project` DISABLE KEYS */;
+INSERT INTO `project` VALUES (2,'WEB_BHDT','31/07/2023 17:26:03','website bán hàng điện thoại');
+/*!40000 ALTER TABLE `project` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

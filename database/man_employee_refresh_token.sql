@@ -1,0 +1,54 @@
+-- MySQL dump 10.13  Distrib 8.0.28, for Win64 (x86_64)
+--
+-- Host: localhost    Database: man_employee
+-- ------------------------------------------------------
+-- Server version	8.0.28
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `refresh_token`
+--
+
+DROP TABLE IF EXISTS `refresh_token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `refresh_token` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `expiryDate` datetime NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `employeeId` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKgek21gw6ck7b79eae58fmhlv6` (`employeeId`)
+) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `refresh_token`
+--
+
+LOCK TABLES `refresh_token` WRITE;
+/*!40000 ALTER TABLE `refresh_token` DISABLE KEYS */;
+INSERT INTO `refresh_token` VALUES (23,'2023-08-01 07:52:27','aeded504-fe28-4f50-ab36-b013c41466ab',17),(24,'2023-08-01 08:45:40','d6ca1cdc-cbbe-43b1-9469-b391ce739883',17),(25,'2023-08-02 02:14:46','b09a0eb8-3f09-4b8f-a6c7-237e9e4ec2d0',17),(26,'2023-08-02 16:07:02','75a641a1-9906-4f8f-ae05-55a2b12cc861',17),(27,'2023-08-03 01:42:50','bb42fd66-9323-40ba-890f-e6ebb0ed66bf',37),(28,'2023-08-03 02:47:15','99b5704f-7781-4c9e-9667-acd2e76a4966',38),(29,'2023-08-03 02:50:11','1e7bf90a-f749-4064-b43d-c44dfc044415',39),(30,'2023-08-04 10:10:56','c6fc0ccb-d98f-44a1-a2d3-f78335854bb4',39),(31,'2023-08-07 04:27:48','a19ea4c0-06bf-4c4c-87c4-ecceb6fe3692',58),(32,'2023-08-07 14:52:21','3f276753-4750-40e6-b957-43f04c629c9d',58),(33,'2023-08-07 14:52:52','e5add327-c646-4bed-9061-da344d8f94cb',58),(34,'2023-08-08 15:08:59','fac42e14-c635-4530-b833-d66d27f58ebd',58),(35,'2023-08-09 03:28:04','5aec95ef-ccfa-4cf3-ae85-50e5228e923b',63),(36,'2023-08-09 08:22:37','6ebb7b26-690c-4314-86c9-cf3a56f24b7a',64),(37,'2023-08-10 03:04:48','d5906afc-c03b-4a5b-b762-eb35b6142afe',64),(38,'2023-08-10 03:06:51','8913f5a5-cb54-4e46-95be-30644158079a',64);
+/*!40000 ALTER TABLE `refresh_token` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2023-08-04 23:22:16
