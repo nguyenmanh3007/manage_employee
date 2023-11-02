@@ -3,8 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="Singleton" class="com.scope.UserService" scope="singleton"/>
+    <bean id="personSingleton" class="com.scope.Person" scope="singleton"/>
 
-    <bean id="Prototype" class="com.scope.EmailService" scope="prototype"/>
+    <bean id="personPrototype" class="com.scope.Person" scope="prototype"/>
 
 </beans>

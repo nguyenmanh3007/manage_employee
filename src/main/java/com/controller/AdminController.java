@@ -8,6 +8,7 @@ import com.payload.request.AssignmentRequest;
 import com.payload.response.MessageResponse;
 import com.service.*;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -34,7 +35,7 @@ public class AdminController {
     private final AssignmentService assignmentService;
     private final CommentService commentService;
     private final JavaMailSender javaMailSender;
-
+    private ConfirmMapper confirmMapper = Mappers.getMapper(ConfirmMapper.class);
 
     @PostMapping("/create")
     public ResponseEntity<?> createEmployee(@RequestBody EmployeeDTO employeeDTO) throws MessagingException {
@@ -116,7 +117,7 @@ public class AdminController {
         if (dateStart == null && dateEnd == null) {
             Pageable pageable= PageRequest.of(pageRequest -1,limit,Sort.by("employee.employeeId"));
             Page<Confirm> list = confirmService.listEmployeeCheckIO(employeeService.getWeekAtNow()[0],employeeService.getWeekAtNow()[1],pageable);
-            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm))
+            List<ConfirmDTO> result = list.stream().map(confirm ->  confirmMapper.confirmToConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
@@ -136,12 +137,12 @@ public class AdminController {
         if (time == null) {
             List<Confirm> list = confirmService.listEmployeeCheckInError(confirmService.getMonthAtNow());
             System.out.println(confirmService.getMonthAtNow());
-            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm))
+            List<ConfirmDTO> result = list.stream().map(confirm ->  confirmMapper.confirmToConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else {
             List<Confirm> list = confirmService.listEmployeeCheckInError(time);
-            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm))
+            List<ConfirmDTO> result = list.stream().map(confirm ->  confirmMapper.confirmToConfirmDTO(confirm))
                                                                 .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }

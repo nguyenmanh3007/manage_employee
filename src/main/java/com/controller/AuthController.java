@@ -1,7 +1,6 @@
 package com.controller;
 
 import com.dto.EmployeeDTO;
-import com.entity.Employee;
 import com.entity.RefreshToken;
 import com.entity.Roles;
 import com.exception.TokenRefreshException;
@@ -21,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
+import javax.validation.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +50,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerEmployee(@RequestBody SignupRequest signupRequest) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(signupRequest);
+        if (!violations.isEmpty()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Data invalid!"));
+        }
         if (employeeService.existsByUserName(signupRequest.getUserName())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Username is already"));
         }
@@ -76,16 +82,21 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword())
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String jwt = tokenProvider.generateTokenFromUsername(customUserDetails.getUsername());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(customUserDetails.getUserId());
-        List<String> listRoles = customUserDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority()).collect(Collectors.toList());
-        return ResponseEntity.ok(new JwtResponse(jwt,refreshToken.getToken(), customUserDetails.getCode(), customUserDetails.getUsername(), customUserDetails.getEmail(), customUserDetails.getPhone(), customUserDetails.getTimeCheckin(), customUserDetails.getTimeCheckout(), listRoles));
+        try {
+             Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+            String jwt = tokenProvider.generateTokenFromUsername(customUserDetails.getUsername());
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(customUserDetails.getUserId());
+            List<String> listRoles = customUserDetails.getAuthorities().stream()
+                    .map(item -> item.getAuthority()).collect(Collectors.toList());
+            return ResponseEntity.ok(new JwtResponse(jwt,refreshToken.getToken(), customUserDetails.getCode(), customUserDetails.getUsername(), customUserDetails.getEmail(), customUserDetails.getPhone(), customUserDetails.getTimeCheckin(), customUserDetails.getTimeCheckout(), listRoles));
+        }
+        catch (AuthenticationException e){
+            return ResponseEntity.ok(new MessageResponse("Username or password invalid"));
+        }
     }
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {

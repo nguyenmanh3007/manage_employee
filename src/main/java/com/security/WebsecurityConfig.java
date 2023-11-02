@@ -2,7 +2,6 @@ package com.security;
 
 import com.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,6 +49,8 @@ public class WebsecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/employee/**").hasAnyRole("EMPLOYEE","ADMIN")
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/employee/getEmployee").permitAll()
+                .antMatchers("/scopes/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

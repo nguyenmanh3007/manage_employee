@@ -10,6 +10,8 @@ import com.repository.ConfirmRepository;
 import com.repository.EmployeeRepository;
 import com.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +24,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/employee")
+@Slf4j
 public class EmployeeController {
     private final EmployeeService employeeService;
     private final CommentService commentService;
     private final ProjectService projectService;
     private final ConfirmService confirmService;
-    private final EmployeeRepository confirmRepository;
-
+    private final EmployeeRepository employeeRepository;
+    private ConfirmMapper confirmMapper = Mappers.getMapper(ConfirmMapper.class);
     @PostMapping("/checkio")
     public ResponseEntity<?> checkIOEmployee(@RequestParam(value = "code") int code) {
         if (employeeService.findByCode(code) == null) {
@@ -53,12 +56,12 @@ public class EmployeeController {
             System.out.println(employeeService.getWeekAtNow()[0] +" "+ employeeService.getWeekAtNow()[1]);
             List<Confirm> list = confirmService.listCheckIOForEmployee(employeeService.getWeekAtNow()[0],employeeService.getWeekAtNow()[1],username);
             System.out.println(list);
-            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
+            List< ConfirmDTO> result = list.stream().map(confirm ->  confirmMapper.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
         else {
             List<Confirm> list = confirmService.listCheckIOForEmployee(dateStart, dateEnd,username);
-            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
+            List<ConfirmDTO> result = list.stream().map(confirm ->  confirmMapper.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
     }
@@ -67,12 +70,12 @@ public class EmployeeController {
                                                                            @RequestParam(value = "username", required = false) String username) {
         if(time ==null){
             List<Confirm> list = confirmService.listCheckIOErrorForEmployee(confirmService.getMonthAtNow(),username);
-            List<ConfirmDTO> result = list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
+            List<ConfirmDTO> result = list.stream().map(confirm ->  confirmMapper.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
         else{
             List<Confirm> list = confirmService.listCheckIOErrorForEmployee(time,username);
-            List<ConfirmDTO> result= list.stream().map(confirm ->  ConfirmMapper.MAPPER.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
+            List<ConfirmDTO> result= list.stream().map(confirm ->  confirmMapper.confirmToConfirmDTO(confirm)).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
     }
@@ -101,7 +104,8 @@ public class EmployeeController {
     }
     @GetMapping(value = "/getEmployee")
     public ResponseEntity<?> getEmployee() {
-        List<Employee> employee = confirmRepository.findAll();
+        List<Employee> employee = employeeRepository.findAll();
+        log.info(employee.toString());
         return ResponseEntity.ok(employee);
     }
 }

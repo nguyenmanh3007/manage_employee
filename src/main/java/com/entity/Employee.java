@@ -3,8 +3,8 @@ package com.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +31,7 @@ public class Employee {
     @JsonFormat(pattern = "dd/MM/yyyy hh:mm:ss")
     private String created;
     @Column(name="Email", unique = true, nullable = false)
+    @Email(message = "email invalid")
     private String email;
     @Column(name="Phone")
     private String phone;
@@ -45,12 +46,12 @@ public class Employee {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Roles> listRoles = new HashSet<>();
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.MERGE)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonIgnore
     private Set<Confirm> confirms=new HashSet<>();
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.ALL)
     private Set<Assignment> assignments=new HashSet<>();
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<Comment> comments=new HashSet<>();
@@ -63,6 +64,7 @@ public class Employee {
         this.phone=phone;
         this.email = email;
     }
+
 
     public Employee(int code, String userName, String phone, String timeCheckin) {
         this.code = code;

@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-
     Comment findCommentByCommentId(int idComment);
     @Query(value = "SELECT co from Comment co INNER JOIN Project pj ON co.project.projectId=pj.projectId" +
             " INNER JOIN Employee em ON em.employeeId=co.employee.employeeId" +

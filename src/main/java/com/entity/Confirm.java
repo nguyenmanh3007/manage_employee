@@ -1,18 +1,12 @@
 package com.entity;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
+import lombok.*;
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name="confirm")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Confirm {
@@ -32,7 +26,7 @@ public class Confirm {
     private String statusCheckIn;
     @Column(name = "statusCheckOut")
     private String statusCheckOut;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employeeId",nullable = false)
     private Employee employee;
 

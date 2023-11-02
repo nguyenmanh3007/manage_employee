@@ -4,7 +4,6 @@ import com.converter.EmployeeConverter;
 import com.dto.EmCoDTO;
 import com.dto.EmployeeDTO;
 import com.entity.Confirm;
-import com.entity.ERole;
 import com.entity.Employee;
 import com.entity.Roles;
 import com.mapper.EmployeeMapper;
@@ -14,11 +13,11 @@ import com.service.EmployeeService;
 import com.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,14 +40,20 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final RoleService roleService;
 
     @Override
-    public Employee findByUserName(String un) {
-        return employeeRepository.findByUserName(un);
+    @Cacheable(value = "customer",key = "#username")
+    public Employee findByUserName(String username) {
+        return employeeRepository.findByUserName(username);
+    }
+
+    @Override
+    public void saveEmployee(Employee employee) {
+        employeeRepository.save(employee);
     }
 
     @Override
     public List<EmployeeDTO> findAll() {
         List<EmployeeDTO> result= employeeRepository.findAll().stream()
-                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .map(employee -> employeeMapper.employeeToEmployeeDto(employee))
                 .collect(Collectors.toList());
         return result;
     }
@@ -65,7 +70,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDTO saveOrUpdate(EmployeeDTO employeeDTO) {
-        return EmployeeMapper.MAPPER.employeeToEmployeeDto(employeeRepository.save(EmployeeMapper.MAPPER.employeeDtoToEmployee(employeeDTO)));
+        return employeeMapper.employeeToEmployeeDto(employeeRepository.save(employeeMapper.employeeDtoToEmployee(employeeDTO)));
     }
 
     @Override
@@ -118,6 +123,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
     @Override
+    @Transactional
     public void deleteByEmployeeId(int id) {
         employeeRepository.deleteRoleEmployee(id);
         employeeRepository.deleteByEmployeeId(id);
@@ -129,7 +135,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateNow=sdf.format(now);
         List<EmployeeDTO> result= employeeRepository.listNotCheckOut(dateNow).stream()
-                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .map(employee -> employeeMapper.employeeToEmployeeDto(employee))
                 .collect(Collectors.toList());
         return result;
     }
@@ -140,7 +146,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateNow=sdf.format(now);
         List<EmployeeDTO> result= employeeRepository.listNotCheckIn(dateNow).stream()
-                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .map(employee -> employeeMapper.employeeToEmployeeDto(employee))
                 .collect(Collectors.toList());
         return result;
     }
@@ -148,14 +154,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDTO> findByUserNameASC(String username) {
         return employeeRepository.findByUserNameASC(username).stream()
-                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .map(employee -> employeeMapper.employeeToEmployeeDto(employee))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<EmployeeDTO> listEmployeeIOwithTime(String dateStart, String dateEnd) {
         return employeeRepository.listEmployeeIOwithTime(dateStart,dateEnd).stream()
-                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .map(employee -> employeeMapper.employeeToEmployeeDto(employee))
                 .collect(Collectors.toList());
     }
 
@@ -251,7 +257,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDTO> searchEmployeesByProject(String code) {
         List<EmployeeDTO> result= employeeRepository.searchEmployeesByProject(code).stream()
-                .map(employee -> EmployeeMapper.MAPPER.employeeToEmployeeDto(employee))
+                .map(employee -> employeeMapper.employeeToEmployeeDto(employee))
                 .collect(Collectors.toList());
         return result;
     }

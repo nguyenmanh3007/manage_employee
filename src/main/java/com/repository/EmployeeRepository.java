@@ -16,11 +16,16 @@ import java.util.List;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+
+
     Employee findByUserName(String un);
     Employee findByEmployeeId(int id);
     Employee findByCode(int code);
+
     boolean existsByUserName(String un);
     boolean existsByEmail(String email);
+
+    @Modifying
     void deleteByEmployeeId(int id);
     @Modifying
     @Query(value = "delete from employee_role where EmployeeId=?1",nativeQuery = true)

@@ -2,6 +2,7 @@ package com.security;
 
 import com.entity.Employee;
 import com.repository.EmployeeRepository;
+import com.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

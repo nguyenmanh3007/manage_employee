@@ -5,7 +5,6 @@ import com.entity.Roles;
 import com.repository.RoleRepository;
 import com.service.RoleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -26,7 +25,8 @@ public class RoleServiceImpl implements RoleService {
         Set<Roles> listRoles = new HashSet<>();
         if (strRoles == null) {
             Roles userRole = roleRepository.findByRoleName(ERole.ROLE_EMPLOYEE)
-                    .orElseThrow(() -> new RuntimeException("Error: Employee role is not found"));
+                    .orElseThrow(() -> new RuntimeException("Error: Employee role is not found"))
+                    ;
             listRoles.add(userRole);
         } else {
             strRoles.forEach(role -> {

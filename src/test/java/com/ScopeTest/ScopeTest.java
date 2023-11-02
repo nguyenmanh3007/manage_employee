@@ -1,11 +1,8 @@
 package com.ScopeTest;
 
-import com.scope.EmailService;
-import com.scope.UserService;
+import com.scope.Person;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -18,27 +15,30 @@ public class ScopeTest {
     private static final String NAME_OTHER = "Anna Jones";
     @Test
     public void givenSingletonScope_whenSetName_thenEqualNames() {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("scopes.xml");
+        final ApplicationContext applicationContext = new ClassPathXmlApplicationContext("scopes.xml");
 
-        UserService userServiceA=applicationContext.getBean(UserService.class);
-        userServiceA.setName(NAME);
-        UserService userServiceB=applicationContext.getBean(UserService.class);
-        Assert.assertEquals(NAME, userServiceB.getName());
+        final Person personSingletonA = (Person) applicationContext.getBean("personPrototype");
+        final Person personSingletonB = (Person) applicationContext.getBean("personPrototype");
+
+        personSingletonA.setName(NAME);
+        Assert.assertEquals(NAME, personSingletonB.getName());
 
         ((AbstractApplicationContext) applicationContext).close();
     }
+
     @Test
     public void givenPrototypeScope_whenSetNames_thenDifferentNames() {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("scopes.xml");
-        EmailService emailServiceA=applicationContext.getBean(EmailService.class);
-        EmailService emailServiceB=applicationContext.getBean(EmailService.class);
+        final ApplicationContext applicationContext = new ClassPathXmlApplicationContext("scopes.xml");
+
+        final Person personPrototypeA = (Person) applicationContext.getBean("personPrototype");
+        final Person personPrototypeB = (Person) applicationContext.getBean("personPrototype");
 
 
-        emailServiceA.setRecipient(NAME_OTHER);
-        //emailServiceB.setRecipient(NAME_OTHER);
+        personPrototypeA.setName(NAME);
+        personPrototypeB.setName(NAME_OTHER);
 
-        Assert.assertEquals(NAME_OTHER, emailServiceA.getRecipient());
-        Assert.assertEquals(null, emailServiceB.getRecipient());
+        Assert.assertEquals(NAME, personPrototypeA.getName());
+        Assert.assertEquals(NAME_OTHER, personPrototypeB.getName());
 
         ((AbstractApplicationContext) applicationContext).close();
     }
