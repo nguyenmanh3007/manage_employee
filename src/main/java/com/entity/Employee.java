@@ -14,7 +14,6 @@ import java.util.Set;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +54,8 @@ public class Employee {
     private Set<Assignment> assignments=new HashSet<>();
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "employee",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<Comment> comments=new HashSet<>();
+
+    public Employee(){}
 
     public Employee(int code, String userName, String password
             , String email,String phone) {

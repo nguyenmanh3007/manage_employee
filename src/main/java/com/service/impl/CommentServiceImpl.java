@@ -37,16 +37,16 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDTO updateComment(CommentDTO commentDTO) {
         Comment oldComment= commentRepository.findCommentByCommentId(commentDTO.getCommentId());
-        commentDTO=commentDTO.builder()
-                .commentId(commentDTO.getCommentId())
-                .content(commentDTO.getContent())
-                .createTime(oldComment.getCreateTime())
-                .updateTime(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()))
-                .point(commentDTO.getPoint())
-                .employee(oldComment.getEmployee())
-                .status(oldComment.isStatus())
-                .project(oldComment.getProject())
-                .build();
+        commentDTO=CommentDTO.builder()
+                             .commentId(commentDTO.getCommentId())
+                             .content(commentDTO.getContent())
+                             .createTime(oldComment.getCreateTime())
+                             .updateTime(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()))
+                             .point(commentDTO.getPoint())
+                             .employee(oldComment.getEmployee())
+                             .status(oldComment.isStatus())
+                             .project(oldComment.getProject())
+                             .build();
         return CommentMapper.MAPPER.commentToCommentDTO(commentRepository.save(CommentMapper.MAPPER.commentDTOToComment(commentDTO)));
     }
 
@@ -62,25 +62,22 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDTO> filterCommentWithProject(String codeProject) {
-        List<CommentDTO> result=commentRepository.filterCommentWithProject(codeProject).stream()
-                .map(comment -> CommentMapper.MAPPER.commentToCommentDTO(comment))
-                .collect(Collectors.toList());
-        return result;
+        return commentRepository.filterCommentWithProject(codeProject).stream()
+                                                                      .map(CommentMapper.MAPPER::commentToCommentDTO)
+                                                                      .collect(Collectors.toList());
     }
 
     @Override
     public List<CommentDTO> filterCommentWithEmployee(int codeEmployee) {
-        List<CommentDTO> result=commentRepository.filterCommentWithEmployee(codeEmployee).stream()
-                .map(comment -> CommentMapper.MAPPER.commentToCommentDTO(comment))
-                .collect(Collectors.toList());
-        return result;
+        return commentRepository.filterCommentWithEmployee(codeEmployee).stream()
+                                                                        .map(CommentMapper.MAPPER::commentToCommentDTO)
+                                                                        .collect(Collectors.toList());
     }
 
     @Override
     public List<CommentDTO> filterCommentWithTime(String start, String end) {
-        List<CommentDTO> result=commentRepository.filterCommentWithTime(start,end).stream()
-                .map(comment -> CommentMapper.MAPPER.commentToCommentDTO(comment))
-                .collect(Collectors.toList());
-        return result;
+        return commentRepository.filterCommentWithTime(start,end).stream()
+                                                                        .map(CommentMapper.MAPPER::commentToCommentDTO)
+                                                                        .collect(Collectors.toList());
     }
 }
